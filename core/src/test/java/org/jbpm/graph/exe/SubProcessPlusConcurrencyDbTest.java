@@ -27,6 +27,10 @@ import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.def.ProcessDefinition;
 
 public class SubProcessPlusConcurrencyDbTest extends AbstractDbTestCase {
+    
+  protected String getJbpmTestConfig() {
+    return "org/jbpm/graph/node/sub-process-async.cfg.xml";
+  }    
 
   protected void setUp() throws Exception {
     super.setUp();

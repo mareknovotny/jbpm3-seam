@@ -64,6 +64,9 @@
   <bean name="jbpm.sub.process.resolver" class="org.jbpm.graph.node.DbSubProcessResolver"
     singleton="true" />
 
+  <boolean name="jbpm.sub.process.async" value="false" />
+
+
   <bean name="jbpm.expression.evaluator" class="org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl"
     singleton="true" />
   <bean name="jbpm.variable.resolver" class="org.jbpm.jpdl.el.impl.JbpmVariableResolver"

@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.JbpmConfiguration.Configs;
 import org.jbpm.JbpmContext;
 import org.jbpm.JbpmException;
 import org.jbpm.context.exe.ContextInstance;
@@ -328,7 +329,7 @@ public class ProcessInstance implements Identifiable, Serializable {
     if (superProcessToken != null && !superProcessToken.hasEnded()) {
       // is message service available?
       MessageService messageService;
-      if (jbpmContext != null
+      if (jbpmContext != null && Configs.getBoolean("jbpm.sub.process.async")
         && (messageService = jbpmContext.getServices().getMessageService()) != null) {
         // signal super-process token asynchronously to avoid stale state exceptions
         // due to concurrent signals to the super-process

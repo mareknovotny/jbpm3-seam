@@ -193,7 +193,7 @@ public class ProcessState extends Node {
     // send the signal to start the subprocess
     JbpmContext jbpmContext = JbpmContext.getCurrentJbpmContext();
     MessageService messageService;
-    if (jbpmContext != null
+    if (jbpmContext != null && Configs.getBoolean("jbpm.sub.process.async")
       && (messageService = jbpmContext.getServices().getMessageService()) != null) {
       // signal sub-process token asynchronously to clearly denote transactional boundaries
       // https://jira.jboss.org/browse/JBPM-2948
