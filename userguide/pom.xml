@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!--  jBPM: Workflow in Java                                                -->
+<!--                                                                        -->
+<!--  Distributable under LGPL license.                                     -->
+<!--  See terms of license at http://www.gnu.org.                           -->
+<!-- ====================================================================== -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>jBPM3 - Reference Guide</name>
+  <groupId>org.jbpm.jbpm3</groupId>
+  <artifactId>jbpm-userguide</artifactId>
+  <packaging>jdocbook</packaging>
+
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jbpm.jbpm3</groupId>
+    <artifactId>jbpm</artifactId>
+    <version>3.2.10</version>
+  </parent>
+
+  <!-- Plugins -->
+  <build>
+    <plugins>
+      <!--
+        Maven JDocbook Plugin
+        http://www.jboss.org/maven-jdocbook-plugin
+      -->
+      <plugin>
+        <groupId>org.jboss.maven.plugins</groupId>
+        <artifactId>maven-jdocbook-plugin</artifactId>
+        <version>2.2.0</version>
+        <extensions>true</extensions>
+
+        <dependencies>
+          <dependency>
+            <groupId>org.jboss</groupId>
+            <artifactId>jbossorg-docbook-xslt</artifactId>
+            <version>1.1.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jbpm.jbpm4</groupId>
+            <artifactId>docbook-style</artifactId>
+            <version>1.0.0</version>
+            <type>jdocbook-style</type>
+          </dependency>
+        </dependencies>
+
+        <configuration>
+          <options>
+            <xincludeSupported>true</xincludeSupported>
+            <xmlTransformerType>saxon</xmlTransformerType>
+            <!-- needed for uri-resolvers; can be ommitted if using 'current' uri scheme -->
+            <!-- could also locate the docbook dependency and inspect its version... -->
+            <docbookVersion>1.72.0</docbookVersion>
+            <transformerParameters>
+              <property>
+                <name>javax.xml.parsers.DocumentBuilderFactory</name>
+                <value>org.apache.xerces.jaxp.DocumentBuilderFactoryImpl</value>
+              </property>
+              <property>
+                <name>javax.xml.parsers.SAXParserFactory</name>
+                <value>org.apache.xerces.jaxp.SAXParserFactoryImpl</value>
+              </property>
+            </transformerParameters>
+          </options>
+
+          <sourceDocumentName>jBPM_Reference_Guide.xml</sourceDocumentName>
+          <imageResource>
+            <directory>${basedir}/src/main/docbook/en-US/</directory>
+            <includes>
+              <include>images/*</include>
+            </includes>
+          </imageResource>
+          <formats>
+            <format>
+              <formatName>html_single</formatName>
+              <stylesheetResource>classpath:/xslt/org/jboss/xhtml-single.xsl</stylesheetResource>
+              <finalName>index.html</finalName>
+            </format>
+          </formats>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

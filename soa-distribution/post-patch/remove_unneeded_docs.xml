@@ -1,0 +1,14 @@
+<project name="patchname" default="apply.patch">
+
+	<property name="package_root" value="${module_base_dir}/target/work/jbpm-installed" />
+	<target name="apply.patch">
+    <unzip src="${package_root}/docs/jbpm-enterprise-javadoc.jar"
+      dest="${module_base_dir}/target/work/javadocs/enterprise"/>
+    <unzip src="${package_root}/docs/jbpm-identity-javadoc.jar" dest="${module_base_dir}/target/work/javadocs/identity"/>
+    <unzip src="${package_root}/docs/jbpm-jpdl-javadoc.jar" dest="${module_base_dir}/target/work/javadocs/jbpm-jpdl"/>
+
+		<!-- SOA-1585 -->
+		<delete dir="${package_root}/docs"/>
+		
+	</target>
+</project>

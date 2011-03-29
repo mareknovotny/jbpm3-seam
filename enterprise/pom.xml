@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!--  jBPM: Workflow in Java                                                -->
+<!--                                                                        -->
+<!--  Distributable under LGPL license.                                     -->
+<!--  See terms of license at http://www.gnu.org.                           -->
+<!-- ====================================================================== -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>jBPM3 - Enterprise</name>
+  <groupId>org.jbpm.jbpm3</groupId>
+  <artifactId>jbpm-enterprise</artifactId>
+  <packaging>ejb</packaging>
+
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jbpm.jbpm3</groupId>
+    <artifactId>jbpm</artifactId>
+    <version>3.2.10</version>
+  </parent>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <!-- jBPM Dependencies -->
+    <dependency>
+      <groupId>org.jbpm.jbpm3</groupId>
+      <artifactId>jbpm-jpdl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Provided Dependencies -->
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-j2ee</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>org.apache.cactus</groupId>
+      <artifactId>cactus.core.framework.uberjar.javaEE.14</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.client</groupId>
+      <artifactId>jbossall-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- Plugins -->
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>assembly-config</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>scripts/assembly-config.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>assembly-test-war</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <finalName>enterprise</finalName>
+              <outputDirectory>${project.build.directory}/test-libs</outputDirectory>
+              <descriptors>
+                <descriptor>scripts/assembly-test-war.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Profiles -->
+  <profiles>
+    <!--
+      Name: jboss-bind-address
+      Desc: Run integration tests if bind address is given
+    -->
+    <profile>
+      <id>jboss-bind-address</id>
+      <activation>
+        <property>
+          <name>jboss.bind.address</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>surefire-integration</id>
+                <phase>integration-test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <skip>false</skip>
+                  <systemProperties>
+                    <property>
+                      <name>log4j.output.dir</name>
+                      <value>${project.build.directory}</value>
+                    </property>
+                    <property>
+                      <name>cactus.contextURL</name>
+                      <value>http://${jboss.bind.address}:8080/enterprise-test</value>
+                    </property>
+                    <property>
+                      <name>java.naming.factory.initial</name>
+                      <value>org.jnp.interfaces.NamingContextFactory</value>
+                    </property>
+                    <property>
+                      <name>java.naming.factory.url.pkgs</name>
+                      <value>org.jboss.naming:org.jnp.interfaces</value>
+                    </property>
+                    <property>
+                      <name>java.naming.provider.url</name>
+                      <value>jnp://${jboss.bind.address}:1099</value>
+                    </property>
+                  </systemProperties>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      Name: jdk14
+      Desc: Dependencies specific to JDK 1.4
+    -->
+    <profile>
+      <id>jdk14</id>
+      <activation>
+        <jdk>1.4</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <!--
+      Name: db2
+      Desc: DB2 test exclusions
+    -->
+    <profile>
+      <id>db2</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>db2</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <!-- [JBPM-1952] test times out with DB2 -->
+                <exclude>org/jbpm/enterprise/jbpm1952/JBPM1952Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      Name: hsqldb
+      Desc: HSQL test exclusions
+    -->
+    <profile>
+      <id>hsqldb</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>hsqldb</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <!--
+                  [JBPM-1708] EJB scheduler does not work with HSQL because
+                  multiple last resources are disallowed by default
+                -->
+                <exclude>org/jbpm/enterprise/ejbtimer/EjbSchedulerTest.java</exclude>
+                <!-- [JBPM-1952] test fails intermittently with HSQL -->
+                <exclude>org/jbpm/enterprise/jbpm1952/JBPM1952Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- 
+      Name: mysql
+      Desc: MySQL test exclusions
+    -->
+    <profile>
+      <id>mysql</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>mysql</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <!-- [JBPM-1952] test times out with MySQL -->
+                <exclude>org/jbpm/enterprise/jbpm1952/JBPM1952Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      Name: sybase
+      Desc: Sybase test exclusions
+    -->
+    <profile>
+      <id>sybase</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>sybase</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <!-- [JBPM-1952] test times out with Sybase -->
+                <exclude>org/jbpm/enterprise/jbpm1952/JBPM1952Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

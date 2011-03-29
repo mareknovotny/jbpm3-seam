@@ -1,0 +1,14 @@
+<project name="overlay jsf console with SOA version" default="apply.patch">
+    <property name="module_work_dir" value="${module_base_dir}/target/work" />
+
+    <target name="apply.patch" >
+      <delete file="${module_work_dir}/jbpm-installed/lib/jsf-console.war" />
+      <copy tofile="${module_work_dir}/jbpm-installed/lib/jsf-console.war" overwrite="true" >
+        <fileset dir="${module_base_dir}/target/dependency/" includes="jsf-console*" />
+      </copy>
+
+      <delete dir="${module_work_dir}/jboss/server/default/deploy/jbpm/jsf-console.war" />
+      <unwar src="${module_work_dir}/jbpm-installed/lib/jsf-console.war" dest="${module_work_dir}/jboss/server/default/deploy/jbpm/jsf-console.war" overwrite="true" />
+
+  </target>
+</project>

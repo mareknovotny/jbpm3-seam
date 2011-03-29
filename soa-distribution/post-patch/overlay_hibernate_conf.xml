@@ -1,0 +1,34 @@
+<project name="overlay_hibernate_conf" default="apply.patch">
+
+	<target name="apply.patch" >
+		<!-- SOA platform version -->
+		<replace file="${module_base_dir}/target/work/jbpm-installed/config/hibernate.cfg.xml">
+			<replacefilter token="JDBC connection properties (begin) -->"
+                           value="JDBC connection properties (begin) ==="/>
+			<replacefilter token="&lt;!-- JDBC connection properties (end)"
+                           value="==== JDBC connection properties (end)"/>
+			<replacefilter token=" DataSource properties (begin) ==="
+                           value=" DataSource properties (begin) -->"/>
+			<replacefilter token="java:comp/env/jdbc/JbpmDataSource"
+                           value="java:/JbpmDS"/>
+			<replacefilter token="==== DataSource properties (end)"
+                           value="&lt;!-- DataSource properties (end)"/>
+
+			<!-- "JTA transaction properties (begin)" is handled below -->
+			<replacefilter token="==== JTA transaction properties (end)"
+                           value="&lt;!-- JTA transaction properties (end)"/>
+			<replacefilter token="Automatic schema creation (begin) -->"
+                           value="Automatic schema creation (begin) ==="/>
+			<replacefilter token="&lt;!-- Automatic schema creation (end)"
+                           value="==== Automatic schema creation (end)"/>
+		</replace>
+
+		<!-- SOA-959 - set name of transaction -->
+		<replace file="${module_base_dir}/target/work/jbpm-installed/config/hibernate.cfg.xml">
+            <replacetoken><![CDATA[JTA transaction properties (begin) ===]]></replacetoken>
+            <replacevalue><![CDATA[JTA transaction properties (begin) -->
+    <property name="jta.UserTransaction">UserTransaction</property>]]></replacevalue>
+		</replace>
+
+</target>
+</project>

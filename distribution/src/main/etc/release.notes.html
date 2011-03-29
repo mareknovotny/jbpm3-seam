@@ -1,0 +1,134 @@
+<html>
+<head>
+<title>Release Notes - JBoss jBPM - Version 3.2.5.SP5</title>
+</head>
+<body>
+<h1>jBPM-3.2.5.SP5</h1>
+
+<h2>Bug</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2094'>JBPM-2094</a>]
+	- Unindexed Foreign Keys cause deadlocks in oracle</li>
+</ul>
+
+<h2>Release</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2132'>JBPM-2132</a>]
+	- Release 3.2.5.SP5</li>
+</ul>
+
+<h2>Task</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2119'>JBPM-2119</a>]
+	- Revert addition of PARENTLOCKMODE_ column</li>
+</ul>
+
+<h2>Sub-task</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1367'>JBPM-1367</a>]
+	- Add QA for oracle</li>
+</ul>
+
+<h1>jBPM-3.2.5.SP4</h1>
+
+<h2>Feature Request</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1446'>JBPM-1446</a>]
+	- display non GMT+0 time zones</li>
+</ul>
+
+<h2>Release</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2112'>JBPM-2112</a>]
+	- Release 3.2.5.SP4</li>
+</ul>
+
+<h1>jBPM-3.2.5.SP3</h1>
+
+<h2>Bug</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2086'>JBPM-2086</a>]
+	- org.jbpm.db.JbpmSchemaDbTest.testCleanSchema is failing with SOA 4.3
+	CP01 libraries</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2088'>JBPM-2088</a>]
+	- Match JDBC driver versions between jBPM and EAP</li>
+</ul>
+
+<h2>Release</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2085'>JBPM-2085</a>]
+	- Release jBPM 3.2.5.SP3</li>
+</ul>
+
+<h2>Task</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2043'>JBPM-2043</a>]
+	- Add jBPM performance test coverage</li>
+</ul>
+
+<h1>jBPM-3.2.5.SP2</h1>
+
+<h2>Bug</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2036'>JBPM-2036</a>]
+	- StaleObjectStateException when repeating timer signals the token</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2050'>JBPM-2050</a>]
+	- distributed examples cannot be compiled</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2057'>JBPM-2057</a>]
+	- Do not truncate long messages/exceptions</li>
+</ul>
+
+<h2>Task</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2056'>JBPM-2056</a>]
+	- Restore strictly compatible jbpm322 schema</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2060'>JBPM-2060</a>]
+	- Investigate requirement on ALTER TABLE privileges</li>
+</ul>
+
+<h2>Sub-task</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1471'>JBPM-1471</a>]
+	- Do not signal ENDED super process token when ending process instance
+	</li>
+</ul>
+
+<h1>jBPM-3.2.5.SP1</h1>
+
+<h2>Bug</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1903'>JBPM-1903</a>]
+	- java:/comp/env JNDI Namespace not found within ActionHandler
+	Implementations</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1988'>JBPM-1988</a>]
+	- Suppression of StaleObjectStateExcpetion stack traces does not work
+	with JtaDbPersistenceServiceFactory</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1989'>JBPM-1989</a>]
+	- Null Pointer Exception in jBPM JobExecutor on server shutdown</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2005'>JBPM-2005</a>]
+	- IzPack distribution does not contain all examples</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2018'>JBPM-2018</a>]
+	- StringInstance hbm configuration column length of 4000</li>
+</ul>
+
+<h2>Task</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1450'>JBPM-1450</a>]
+	- Disable jBPM logging in SOA profile</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1818'>JBPM-1818</a>]
+	- Use Sybase instance that supports XA Transaction</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1991'>JBPM-1991</a>]
+	- Change default parentLockMode from FORCE to UPGRADE</li>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-2017'>JBPM-2017</a>]
+	- STRINGVALUE_ column in JBPM_VARIABLEINSTANCE table should be text,
+	not varchar(255)</li>
+</ul>
+
+<h2>Sub-task</h2>
+<ul>
+	<li>[<a href='https://jira.jboss.org/jira/browse/JBPM-1369'>JBPM-1369</a>]
+	- Add QA for postgress</li>
+</ul>
+
+</body>
+</html>

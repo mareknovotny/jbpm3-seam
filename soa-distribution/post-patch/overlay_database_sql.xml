@@ -1,0 +1,11 @@
+<project name="overlay_database_sql" default="apply.patch">
+
+    <target name="apply.patch" >
+      <delete>
+        <fileset dir="${module_base_dir}/target/work/jbpm-installed/database">
+          <include name="**/jbpm.jpdl.*.update322.sql"/>
+        </fileset>
+      </delete>
+
+  </target>
+</project>

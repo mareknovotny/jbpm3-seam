@@ -1,0 +1,71 @@
+<project name="jBPM SOA Sub-Builder">
+
+    <!--
+    !!  Define convenience variables for this build file here. Avoid duplicate properties existed in dependencies!
+    !!-->
+    <property name="jbpm_install_path" location="${module_base_dir}/target/work/jbpm-installed"/>
+
+    <target name="build">
+        <mkdir dir="${jbpm_install_path}"/>
+        <mkdir dir="${module_base_dir}/target/work/jboss"/>
+
+        <copy todir="${module_base_dir}/../distribution/target/" overwrite="true">
+          <fileset dir="${module_base_dir}/resource" includes="autosetup.xml"/>
+            <filterset>
+                <filter token="JBPM_INSTALL_PATH" value="${jbpm_install_path}"/>
+                <filter token="JBOSS_INSTALL_PATH" value="${module_base_dir}/target/work/jboss"/>
+            </filterset>
+        </copy>
+
+        <java jar="${module_base_dir}/../distribution/target/jbpm-distribution-${project.version}-installer.jar"
+              fork="true">
+              <arg value="${module_base_dir}/../distribution/target/autosetup.xml"/>
+        </java>
+
+    </target>
+
+    <target name="assemble">
+        <copy todir="${module_base_dir}/target/dist/jbpm-jpdl" overwrite="true">
+            <fileset dir="${jbpm_install_path}"/>
+        </copy>
+
+        <copy todir="${module_base_dir}/target/dist/jbpm-jpdl/deploy" overwrite="true">
+            <fileset dir="${module_base_dir}/target/work/jboss"/>
+        </copy>
+
+        <copy todir="${module_base_dir}/target/dist/jbpm-config" overwrite="true">
+            <fileset dir="${jbpm_install_path}/lib">
+                <include name="jbpm-jpdl.jar"/>
+                <include name="jbpm-identity.jar"/>
+            </fileset>
+            <fileset dir="${jbpm_install_path}/config">
+                <include name="jbpm.mail.templates.xml"/>
+                <include name="hibernate.cfg.xml"/>
+            </fileset>
+        </copy>
+
+        <copy todir="${module_base_dir}/target/dist/jbpm-sql" overwrite="true">
+            <fileset dir="${jbpm_install_path}/database">
+                <include name="*.sql"/>
+                <exclude name="*.drop.sql"/>
+            </fileset>
+
+        </copy>
+        <!-- src is in the jbpm-jpdl.zip so don't need to do anything for src -->
+        <!--
+                    <copy file="${soa_work_dir}/jbpm/dist/jbpm-jpdl.zip"
+                                    tofile="jbpm-jpdl-soa.${build_version}.zip"/>
+                    <checksum file="jbpm-jpdl-soa.${build_version}.zip"/>
+           -->
+
+        <!-- unpack the javadocs -->
+        <copy todir="${module_base_dir}/target/dist/javadocs" overwrite="true">
+          <fileset dir="${module_base_dir}/target/work/javadocs" includes="**/*" />
+        </copy>
+        
+        <zip destfile="${module_base_dir}/target/${module_build_finalName}.zip" > 
+          <zipfileset dir="${module_base_dir}/target/dist" prefix="jbpm" includes="**/*" />
+        </zip>
+    </target>
+
+</project>

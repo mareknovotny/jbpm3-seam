@@ -1,0 +1,7 @@
+<project name="remove_uninstall" default="apply.patch">
+    <target name="apply.patch" >
+        <!-- Remove redundant installer leftovers -->
+        <delete dir="${module_base_dir}/target/work/jbpm-installed/Uninstaller"/>
+        <delete file="${module_base_dir}/target/work/jbpm-installed/.installationinformation"/>
+  </target>
+</project>

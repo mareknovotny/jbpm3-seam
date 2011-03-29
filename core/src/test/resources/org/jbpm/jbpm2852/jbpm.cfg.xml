@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jbpm-configuration>
+  <jbpm-context />
+  <string name="resource.mail.templates" value="org/jbpm/jbpm2852/mail.templates.xml" />
+  <int name="jbpm.mail.smtp.port" value="2525" />
+</jbpm-configuration>

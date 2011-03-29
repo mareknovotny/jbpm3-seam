@@ -1,0 +1,18 @@
+<project name="Generate the customer jbpm.cfg.xml" default="apply.patch">
+    <!-- Generate the custom jbpm.cfg.xml for the SOA platform -->	
+    <property name="module_work_dir" value="${module_base_dir}/target/work" />
+    <property name="jbpm_config" value="${module_work_dir}/patch_jbpm_cfg/org/jbpm/default.jbpm.cfg.xml" />
+
+
+    <target name="apply.patch" >
+      <unjar src="${module_work_dir}/jbpm-installed/lib/jbpm-jpdl.jar" dest="${module_work_dir}/patch_jbpm_cfg/" overwrite="true"/>
+
+
+      <!--Disable the logging service-->
+      <replace file="${jbpm_config}" token='&lt;!-- Logging Service (begin) --&gt;' value='&lt;!-- Logging Service (begin) ==='  />
+      <replace file="${jbpm_config}" token='&lt;!-- Logging Service (end) --&gt;' value='==== Logging Service (end) --&gt;'  />
+
+      <delete file="${module_work_dir}/jbpm-installed/lib/jbpm-jpdl.jar" />
+      <jar destfile="${module_work_dir}/jbpm-installed/lib/jbpm-jpdl.jar" basedir="${module_work_dir}/patch_jbpm_cfg/" />
+  </target>
+</project>

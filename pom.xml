@@ -1,0 +1,827 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!--  jBPM: Workflow in Java                                                -->
+<!--                                                                        -->
+<!--  Distributable under LGPL license.                                     -->
+<!--  See terms of license at http://www.gnu.org.                           -->
+<!-- ====================================================================== -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>jBPM3</name>
+  <groupId>org.jbpm.jbpm3</groupId>
+  <artifactId>jbpm</artifactId>
+  <packaging>pom</packaging>
+  <version>3.2.10</version>
+
+  <!-- Source Control Management -->
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbpm/jbpm3/tags/jbpm-3.2.10</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbpm/jbpm3/tags/jbpm-3.2.10</developerConnection>
+    <url>http://fisheye.jboss.org/browse/jbpm/jbpm3/tags/jbpm-3.2.10</url>
+  </scm>
+
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss</groupId>
+    <artifactId>jboss-parent</artifactId>
+    <version>5</version>
+  </parent>
+
+  <!-- Modules -->
+  <modules>
+    <module>core</module>
+    <module>enterprise</module>
+    <module>examples</module>
+    <module>identity</module>
+    <module>simulation</module>
+    <module>tomcat</module>
+  </modules>
+
+  <!-- Properties -->
+  <properties>
+    <maven.compiler.source>1.4</maven.compiler.source>
+    <maven.compiler.target>1.4</maven.compiler.target>
+
+    <!-- Dependency versions -->
+    <cargo.version>1.0.3</cargo.version>
+    <jsf.console.version>3.2.10</jsf.console.version>
+
+    <!-- Database Driver Versions  -->
+    <db2jcc.version>3.1.57</db2jcc.version>
+    <hsqldb.version>1.8.0.7</hsqldb.version>
+    <jconnect.version>6.0.5</jconnect.version>
+    <jtds.version>1.2.2</jtds.version>
+    <msjdbc.version>1.2.2828.100</msjdbc.version>
+    <mysql.connector.version>5.0.7</mysql.connector.version>
+    <ojdbc.version>10.2.0.4</ojdbc.version>
+    <postgresql.version>8.2-504.jdbc3</postgresql.version>
+
+    <!-- Plugin versions -->
+    <version.javadoc.plugin>2.7</version.javadoc.plugin>
+  </properties>
+
+  <!-- DependencyManagement -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- jBPM Dependencies -->
+      <dependency>
+        <groupId>org.jbpm.jbpm3</groupId>
+        <artifactId>jsf-console</artifactId>
+        <version>${jsf.console.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>org.jbpm.jbpm3</groupId>
+        <artifactId>jsf-console-jee5</artifactId>
+        <version>${jsf.console.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>org.jbpm.jbpm3</groupId>
+        <artifactId>jsf-console-tomcat</artifactId>
+        <version>${jsf.console.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>org.jbpm.jbpm3</groupId>
+        <artifactId>gpd-deployer</artifactId>
+        <version>${jsf.console.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>org.jbpm.jbpm3</groupId>
+        <artifactId>jbpm-jpdl-designer-site</artifactId>
+        <version>3.1.7</version>
+        <type>zip</type>
+      </dependency>
+
+      <!-- Thirdparty Dependencies -->
+      <dependency>
+        <groupId>org.apache.ant</groupId>
+        <artifactId>ant</artifactId>
+        <version>1.7.0</version>
+      </dependency>
+      <dependency>
+        <groupId>backport-util-concurrent</groupId>
+        <artifactId>backport-util-concurrent</artifactId>
+        <version>3.1</version>
+      </dependency>
+      <dependency>
+        <groupId>bsh</groupId>
+        <artifactId>bsh</artifactId>
+        <version>1.3.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cactus</groupId>
+        <artifactId>cactus.core.framework.uberjar.javaEE.14</artifactId>
+        <version>1.8.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>org.mortbay.jetty</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-ant</artifactId>
+        <version>${cargo.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-core-uberjar</artifactId>
+        <version>${cargo.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.7.0</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>1.2.1</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>1.4</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>desmoj</groupId>
+        <artifactId>desmoj</artifactId>
+        <version>2.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>dom4j</groupId>
+        <artifactId>dom4j</artifactId>
+        <version>1.6.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-compiler</artifactId>
+        <version>4.0.7</version>
+        <exclusions>
+          <exclusion>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-core</artifactId>
+        <version>4.0.7</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.el</groupId>
+        <artifactId>el-api</artifactId>
+        <version>1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.el</groupId>
+        <artifactId>el-ri</artifactId>
+        <version>1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.gravel</groupId>
+        <artifactId>gravel</artifactId>
+        <version>1.0.0.GA</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate</artifactId>
+        <version>3.2.4.sp1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.cluster</groupId>
+        <artifactId>hibernate-jbc-cacheprovider</artifactId>
+        <version>1.0.2.GA</version>
+        <exclusions>
+          <exclusion>
+            <groupId>hibernate</groupId>
+            <artifactId>hibernate3</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.izpack</groupId>
+        <artifactId>izpack-standalone-compiler</artifactId>
+        <version>4.3.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jackrabbit</groupId>
+        <artifactId>jackrabbit-core</artifactId>
+        <version>1.6.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>jasperreports</groupId>
+        <artifactId>jasperreports</artifactId>
+        <version>3.5.3</version>
+        <exclusions>
+          <exclusion>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>eclipse</groupId>
+            <artifactId>jdtcore</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>jaxen</groupId>
+        <artifactId>jaxen</artifactId>
+        <version>1.1.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.client</groupId>
+        <artifactId>jbossall-client</artifactId>
+        <version>4.0.5.GA</version>
+      </dependency>
+      <dependency>
+        <groupId>jboss</groupId>
+        <artifactId>jboss-j2ee</artifactId>
+        <version>4.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.jcr</groupId>
+        <artifactId>jcr</artifactId>
+        <version>1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.transaction</groupId>
+        <artifactId>jta</artifactId>
+        <version>1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.facelets</groupId>
+        <artifactId>jsf-facelets</artifactId>
+        <version>1.1.15</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>3.8.1</version>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.14</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.mail</groupId>
+        <artifactId>mail</artifactId>
+        <version>1.4.2</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.retrotranslator</groupId>
+        <artifactId>retrotranslator-runtime</artifactId>
+        <version>1.2.7</version>
+      </dependency>
+      <dependency>
+        <groupId>org.richfaces.ui</groupId>
+        <artifactId>richfaces-ui</artifactId>
+        <version>3.2.1.GA</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>2.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.subethamail</groupId>
+        <artifactId>subethasmtp-smtp</artifactId>
+        <version>1.2</version>
+        <classifier>java14</classifier>
+      </dependency>
+      <dependency>
+        <groupId>org.subethamail</groupId>
+        <artifactId>subethasmtp-wiser</artifactId>
+        <version>1.2</version>
+        <classifier>java14</classifier>
+        <exclusions>
+          <exclusion>
+            <groupId>org.subethamail</groupId>
+            <artifactId>subethasmtp-smtp</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- Database Drivers -->
+      <dependency>
+        <groupId>com.ibm</groupId>
+        <artifactId>db2jcc</artifactId>
+        <version>${db2jcc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.ibm</groupId>
+        <artifactId>db2jcc_license_cu</artifactId>
+        <version>${db2jcc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>hsqldb</groupId>
+        <artifactId>hsqldb</artifactId>
+        <version>${hsqldb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sourceforge.jtds</groupId>
+        <artifactId>jtds</artifactId>
+        <version>${jtds.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.microsoft.sqlserver</groupId>
+        <artifactId>msjdbc</artifactId>
+        <version>${msjdbc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql.connector.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.oracle</groupId>
+        <artifactId>ojdbc14</artifactId>
+        <version>${ojdbc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sybase</groupId>
+        <artifactId>jconnect</artifactId>
+        <version>${jconnect.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- Plugins -->
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <quiet>true</quiet>
+          <docfilessubdirs>true</docfilessubdirs>
+          <detectOfflineLinks>false</detectOfflineLinks>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>${surefire.jvm.args}</argLine>
+          <systemProperties>
+            <property>
+              <name>log4j.output.dir</name>
+              <value>${project.build.directory}</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <releaseProfiles>release</releaseProfiles>
+          <goals>deploy</goals>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+        </configuration>
+      </plugin>
+    </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.izpack</groupId>
+          <artifactId>izpack-maven-plugin</artifactId>
+          <version>1.0-alpha-5</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.jboss.maven.plugins</groupId>
+          <artifactId>maven-jdocbook-plugin</artifactId>
+          <version>2.1.2</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>sql-maven-plugin</artifactId>
+          <version>1.4</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <!-- Repositories -->
+  <repositories>
+    <repository>
+      <id>jboss-public-repository-group</id>
+      <name>JBoss Public Repository Group</name>
+      <url>http://repository.jboss.org/nexus/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jboss-public-repository-group</id>
+      <name>JBoss Public Repository Group</name>
+      <url>http://repository.jboss.org/nexus/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <!-- Profiles -->
+  <profiles>
+    <!--
+      Name: distro
+      Desc: Build the distribution
+    -->
+    <profile>
+      <id>distro</id>
+      <modules>
+        <module>distribution</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      Name: release
+      Desc: Prepare for release
+    -->
+    <profile>
+      <id>release</id>
+      <modules>
+        <module>db</module>
+        <module>userguide</module>
+        <module>distribution</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      Name: jdk14
+      Desc: dependencies specific to jdk 1.4
+    -->
+    <profile>
+      <id>jdk14</id>
+      <activation>
+        <jdk>1.4</jdk>
+      </activation>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.8.1</version>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+    </profile>
+
+    <!--
+      Name: jdk15
+      Desc: modules specific to jdk 1.5 and up
+    -->
+    <profile>
+      <id>jdk15</id>
+      <activation>
+        <jdk>[1.5,1.7)</jdk>
+      </activation>
+      <modules>
+        <module>enterprise-jee5</module>
+      </modules>
+    </profile>
+
+    <!-- DATABASE PROFILES -->
+
+    <!--
+      Name: no-database
+      Desc: Default Database Setup
+    -->
+    <profile>
+      <id>no-database</id>
+      <activation>
+        <property>
+          <name>!database</name>
+        </property>
+      </activation>
+      <properties>
+        <database>hsqldb</database>
+        <jdbc.hsqldb.database>jbpm3</jdbc.hsqldb.database>
+        <jdbc.hsqldb.url>jdbc:hsqldb:mem:${jdbc.hsqldb.database}</jdbc.hsqldb.url>
+        <jdbc.hsqldb.username>sa</jdbc.hsqldb.username>
+        <jdbc.hsqldb.password />
+        <jdbc.hsqldb.driver>org.hsqldb.jdbcDriver</jdbc.hsqldb.driver>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <!--
+      Name: db2
+      Desc: DB2 Database Setup
+    -->
+    <profile>
+      <id>db2</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>db2</value>
+        </property>
+      </activation>
+      <repositories>
+        <repository>
+          <id>qa.jboss.com</id>
+          <url>http://www.qa.jboss.com/jdbc-drivers/maven2</url>
+        </repository>
+      </repositories>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm</groupId>
+          <artifactId>db2jcc</artifactId>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.ibm</groupId>
+          <artifactId>db2jcc_license_cu</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <!--
+      Name: hsqldb
+      Desc: Hypersonic Database Setup
+    -->
+    <profile>
+      <id>hsqldb</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>hsqldb</value>
+        </property>
+      </activation>
+      <properties>
+        <jdbc.hsqldb.database>jbpm3</jdbc.hsqldb.database>
+        <jdbc.hsqldb.url>jdbc:hsqldb:mem:${jdbc.hsqldb.database}</jdbc.hsqldb.url>
+        <jdbc.hsqldb.username>sa</jdbc.hsqldb.username>
+        <jdbc.hsqldb.password />
+        <jdbc.hsqldb.driver>org.hsqldb.jdbcDriver</jdbc.hsqldb.driver>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <!--
+      Name: mssql
+      Desc: MSSQL Database Setup
+    -->
+    <profile>
+      <id>mssql</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>mssql</value>
+        </property>
+      </activation>
+      <repositories>
+        <repository>
+          <id>qa.jboss.com</id>
+          <url>http://www.qa.jboss.com/jdbc-drivers/maven2</url>
+        </repository>
+      </repositories>
+      <dependencies>
+        <dependency>
+          <groupId>com.microsoft.sqlserver</groupId>
+          <artifactId>msjdbc</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <!--
+      Name: mysql
+      Desc: MySQL Database Setup
+    -->
+    <profile>
+      <id>mysql</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>mysql</value>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <!-- 
+      Name: oracle
+      Desc: Oracle Database Setup
+    -->
+    <profile>
+      <id>oracle</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>oracle</value>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle</groupId>
+          <artifactId>ojdbc14</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      <repositories>
+        <repository>
+          <id>qa.jboss.com</id>
+          <url>http://www.qa.jboss.com/jdbc-drivers/maven2</url>
+        </repository>
+      </repositories>
+    </profile>
+
+    <!--
+      Name: postgresql
+      Desc: PostgreSQL Database Setup
+    -->
+    <profile>
+      <id>postgresql</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>postgresql</value>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <!--
+      Name: sybase
+      Desc: Sybase Database Setup
+    -->
+    <profile>
+      <id>sybase</id>
+      <activation>
+        <property>
+          <name>database</name>
+          <value>sybase</value>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>net.sourceforge.jtds</groupId>
+          <artifactId>jtds</artifactId>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.sybase</groupId>
+          <artifactId>jconnect</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      <repositories>
+        <repository>
+          <id>qa.jboss.com</id>
+          <url>http://www.qa.jboss.com/jdbc-drivers/maven2</url>
+        </repository>
+      </repositories>
+    </profile>
+
+    <!--
+      Name: SOA
+      Desc: SOA-P Productization
+    -->
+    <profile>
+      <id>soa</id>
+      <modules>
+        <module>db</module>
+        <module>userguide</module>
+        <module>distribution</module>
+        <module>soa-distribution</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
