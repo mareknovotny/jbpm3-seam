@@ -52,38 +52,26 @@ class DispatcherThread extends Thread implements Deactivable {
   }
 
   public void run() {
-    int retryInterval = jobExecutor.getRetryInterval();
     while (active) {
-      // acquire job; on exception, call returns null
-      Job job = acquireJob();
-      // submit job
-      if (job != null) submitJob(job);
+      if (jobExecutor.waitForFreeExecutorThread()) {
+        // acquire job; on exception, call returns null
+        Job job = acquireJob();
+        // submit job
+        if (job != null) {
+          submitJob(job);
+          continue ;
+        }
+      }
 
       // if still active, wait or sleep
       if (active) {
         try {
-          if (job != null) {
-            // reset the current retry interval
-            retryInterval = jobExecutor.getRetryInterval();
-            // wait for next due job
-            long waitPeriod = getWaitPeriod(jobExecutor.getIdleInterval());
-            if (waitPeriod > 0) {
-              synchronized (jobExecutor) {
+          // wait for next due job
+          long waitPeriod = getWaitPeriod(jobExecutor.getIdleInterval());
+          if (waitPeriod > 0) {
+            synchronized (jobExecutor) {
+              if (active)
                 jobExecutor.wait(waitPeriod);
-              }
-            }
-          }
-          else {
-            // sleep instead of waiting on jobExecutor
-            // to prevent message/scheduler service from waking up this thread
-            sleep(retryInterval);
-            // after an exception, double the current retry interval
-            // to avoid continuous failures during anomalous conditions
-            retryInterval *= 2;
-            // enforce maximum idle interval
-            int maxIdleInterval = jobExecutor.getMaxIdleInterval();
-            if (retryInterval > maxIdleInterval || retryInterval < 0) {
-              retryInterval = maxIdleInterval;
             }
           }
         }
@@ -144,12 +132,8 @@ class DispatcherThread extends Thread implements Deactivable {
   }
 
   private void submitJob(Job job) {
-    try {
-      jobExecutor.getQueue().put(job);
-    }
-    catch (InterruptedException e) {
+    if (!jobExecutor.submitJob(job)) {
       unlockJob(job);
-      if (log.isDebugEnabled()) log.debug(getName() + " got interrupted");
     }
   }
 

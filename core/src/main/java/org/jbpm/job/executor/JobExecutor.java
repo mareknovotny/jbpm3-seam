@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,9 +17,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.jbpm.JbpmConfiguration;
+import org.jbpm.JbpmContext;
+import org.jbpm.db.JobSession;
+import org.jbpm.job.Job;
 
-import edu.emory.mathcs.backport.java.util.concurrent.BlockingQueue;
-import edu.emory.mathcs.backport.java.util.concurrent.SynchronousQueue;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.Condition;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.Lock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantLock;
 
 public class JobExecutor implements Serializable {
 
@@ -39,7 +44,13 @@ public class JobExecutor implements Serializable {
   protected int lockBufferTime;
 
   private ThreadGroup threadGroup;
-  private BlockingQueue queue = new SynchronousQueue();
+  private int waitingExecutorCount ;
+  private boolean waitingDispatcher ;
+  private boolean dispatcherActive ;
+  private Lock waitingExecutorLock = new ReentrantLock() ;
+  private Condition waitingExecutorCondition = waitingExecutorLock.newCondition() ;
+  private Condition waitingDispatcherCondition = waitingExecutorLock.newCondition() ;
+  private LinkedList dispatchedJobs = new LinkedList();
 
   /** @deprecated call {@link #getThreads()} instead */
   protected Map threads;
@@ -56,6 +67,8 @@ public class JobExecutor implements Serializable {
     if (!isStarted) {
       log.info("starting " + name);
 
+      activateDispatcher() ;
+      
       // create thread group
       threadGroup = new ThreadGroup(name) {
         public void uncaughtException(Thread thread, Throwable throwable) {
@@ -119,6 +132,8 @@ public class JobExecutor implements Serializable {
       }
     }
 
+    deactivateDispatcher() ;
+    
     // return deactivated threads
     return deactivatedThreads;
   }
@@ -156,10 +171,6 @@ public class JobExecutor implements Serializable {
 
   ThreadGroup getThreadGroup() {
     return threadGroup;
-  }
-
-  BlockingQueue getQueue() {
-    return queue;
   }
 
   private String getThreadName(int index) {
@@ -418,5 +429,116 @@ public class JobExecutor implements Serializable {
     this.nbrOfThreads = nbrOfThreads;
   }
 
+  private boolean hasFreeExecutor() {
+    waitingExecutorLock.lock() ;
+	try {
+      return (waitingExecutorCount > dispatchedJobs.size()) ;
+    } finally {
+      waitingExecutorLock.unlock() ;
+    }
+  }
+  // return false when interrupted
+  boolean waitForFreeExecutorThread() {
+    waitingExecutorLock.lock() ;
+    try {
+      waitingDispatcher = true ;
+      if (dispatcherActive) {
+        if (hasFreeExecutor()) {
+          return true ;
+        } else {
+          waitingDispatcherCondition.await() ;
+          return hasFreeExecutor() ;
+        }
+      }
+    } catch (final InterruptedException ie) {
+    } finally {
+      waitingDispatcher = false ;
+      waitingExecutorLock.unlock() ;
+    }
+    return false ;
+  }
+  
+  // return null when interrupted
+  Job getJob() {
+    waitingExecutorLock.lock() ;
+    try {
+      waitingExecutorCount++ ;
+      if (dispatcherActive) { 
+        if (waitingDispatcher && hasFreeExecutor()) {
+          waitingDispatcherCondition.signal() ;
+        }
+        if (dispatchedJobs.isEmpty()) {
+          waitingExecutorCondition.await() ;
+        }
+        if (dispatchedJobs.size() > 0) {
+          return (Job)dispatchedJobs.remove() ;
+        }
+      }
+    } catch (final InterruptedException ie) {
+    } finally {
+      waitingExecutorCount-- ;
+      waitingExecutorLock.unlock() ;
+    }
+    return null ;
+  }
+  
+  boolean submitJob(final Job job) {
+	waitingExecutorLock.lock() ;
+	try {
+	  if (hasFreeExecutor()) {
+        dispatchedJobs.add(job) ;
+        waitingExecutorCondition.signal() ;
+        return true ;
+      }
+    } finally {
+      waitingExecutorLock.unlock() ;
+    }
+    return false ;
+  }
+
+  private void activateDispatcher() {
+    waitingExecutorLock.lock() ;
+    try {
+      if (!dispatcherActive) {
+        unlockOurJobs() ;
+        dispatcherActive = true ;
+      }
+    } finally {
+      waitingExecutorLock.unlock() ;
+    }
+  }
+  
+  private void unlockOurJobs() {
+    final JbpmContext jbpmContext = getJbpmConfiguration().createJbpmContext();
+    try {
+      final String lockOwner = getName();
+      final JobSession jobSession = jbpmContext.getJobSession();
+      jobSession.releaseLockedJobs(lockOwner);
+    } catch (RuntimeException e) {
+      jbpmContext.setRollbackOnly();
+      if (log.isDebugEnabled()) log.debug("failed to release locked jobs", e);
+    } catch (Error e) {
+      jbpmContext.setRollbackOnly();
+      throw e;
+    } finally {
+      try {
+        jbpmContext.close();
+      }  catch (RuntimeException e) {
+        if (log.isDebugEnabled()) log.debug("failed to release locked jobs", e);
+      }
+    }
+  }
+
+  private void deactivateDispatcher() {
+    waitingExecutorLock.lock() ;
+    try {
+      dispatcherActive = false ;
+      waitingDispatcherCondition.signal() ;
+      waitingExecutorCondition.signalAll() ;
+    } finally {
+      waitingExecutorLock.unlock() ;
+    }
+  }
+  
   private static Log log = LogFactory.getLog(JobExecutor.class);
 }

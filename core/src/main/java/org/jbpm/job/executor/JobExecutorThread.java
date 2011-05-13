@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +24,7 @@ public class JobExecutorThread extends Thread implements Deactivable {
 
   private final JobExecutor jobExecutor;
   private volatile boolean active = true;
+  private Random random = new Random() ;
 
   public JobExecutorThread(String name, JobExecutor jobExecutor) {
     super(jobExecutor.getThreadGroup(), name);
@@ -42,7 +44,7 @@ public class JobExecutorThread extends Thread implements Deactivable {
   public void run() {
     while (active) {
       // take on next job
-      Job job = acquireJob();
+      Job job = jobExecutor.getJob();
       // if an exception occurs, acquireJob() returns null
       if (job != null) {
         try {
@@ -126,16 +128,6 @@ public class JobExecutorThread extends Thread implements Deactivable {
     return jobs;
   }
 
-  private Job acquireJob() {
-    try {
-      return (Job) jobExecutor.getQueue().take();
-    }
-    catch (InterruptedException e) {
-      if (log.isDebugEnabled()) log.debug(getName() + " got interrupted");
-      return null;
-    }
-  }
-
   protected void executeJob(Job job) throws Exception {
     JbpmContext jbpmContext = jobExecutor.getJbpmConfiguration().createJbpmContext();
     try {
@@ -192,10 +184,9 @@ public class JobExecutorThread extends Thread implements Deactivable {
       // unlock job so it can be dispatched again
       job.setLockOwner(null);
       job.setLockTime(null);
-      // notify job executor
-      synchronized (jobExecutor) {
-        jobExecutor.notify();
-      }
+      int waitPeriod = jobExecutor.getRetryInterval() / 2;
+      waitPeriod += random.nextInt(waitPeriod) ;
+      job.setDueDate(new Date(System.currentTimeMillis() + waitPeriod)) ;
     }
     catch (RuntimeException e) {
       jbpmContext.setRollbackOnly();
@@ -213,6 +204,10 @@ public class JobExecutorThread extends Thread implements Deactivable {
         log.warn("failed to save exception for " + job, e);
       }
     }
+    // notify job executor
+    synchronized (jobExecutor) {
+      jobExecutor.notify();
+    }
   }
 
   private void unlockJob(Job job) {
@@ -224,10 +219,6 @@ public class JobExecutorThread extends Thread implements Deactivable {
       // unlock job
       job.setLockOwner(null);
       job.setLockTime(null);
-      // notify job executor
-      synchronized (jobExecutor) {
-        jobExecutor.notify();
-      }
     }
     catch (RuntimeException e) {
       jbpmContext.setRollbackOnly();
@@ -245,6 +236,10 @@ public class JobExecutorThread extends Thread implements Deactivable {
       catch (RuntimeException e) {
         log.warn("failed to unlock " + job, e);
       }
+    }
+    // notify job executor
+    synchronized (jobExecutor) {
+      jobExecutor.notify();
     }
   }
 

@@ -275,4 +275,14 @@ public class JobSession {
     }
     return session.createCriteria(Job.class).add(Restrictions.in("id", jobs)).list();
   }
+
+  public void releaseLockedJobs(final String lockOwner) {
+    try {
+      session.getNamedQuery("JobSession.releaseLockedJobs")
+        .setString("lockOwner", lockOwner)
+        .executeUpdate();
+    } catch (HibernateException e) {
+      throw new JbpmPersistenceException("could not release locked jobs by owner '" + lockOwner + "'", e);
+    }
+  }
 }
