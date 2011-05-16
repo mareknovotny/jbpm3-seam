@@ -13,7 +13,7 @@
   <groupId>org.jbpm.jbpm3</groupId>
   <artifactId>jbpm</artifactId>
   <packaging>pom</packaging>
-  <version>3.2.10.SP2</version>
+  <version>3.2.10.SP3</version>
 
   <!-- Source Control Management -->
   <scm>
