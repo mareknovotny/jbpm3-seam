@@ -186,26 +186,23 @@
         executor must execute the jobs. This is done in two phases.
     <itemizedlist>
         <listitem>
-            <para>A job executor thread must acquire a job</para>
+            <para>The dispatcher thread must acquire a job</para>
         </listitem>
         <listitem>
-            <para>The thread that acquired the job must execute it</para>
+            <para>An executor thread must execute the job</para>
         </listitem>
     </itemizedlist>
     </para>
     
-    <para>Acquiring a job and executing the job are done in 2 separate transactions.  A thread 
-    acquires a job by putting its name into the owner field of the job.  Each thread has a unique 
-    name based on IP address and sequence number.  Hibernate's optimistic locking is enabled on 
-    <literal>Job</literal>-objects.  So if 2 threads try to acquire a job concurrently, one of 
-    them will get a StaleObjectException and rollback.  Only the first one will succeed.  The 
-    thread that succeeds in acquiring a job is now responsible for executing it in a separate 
-    transaction.
+    <para>Acquiring a job and executing the job are done in 2 separate transactions.  The
+    dispatcher thread acquires jobs from the database on behalf of all the executor threads
+    on this node.  When the executor thread takes the job, it adds its name into the owner
+    field of the job.  Each thread has a unique name based on IP address and sequence number. 
     </para>
 
     <para>A thread could die between acquisition and execution of a job.  To clean-up after 
     those situations, there is one lock-monitor thread per job executor that checks the lock times.  
-    The lock monitor thread will unlock any jobs that have been locked for more than 30 minutes,
+    The lock monitor thread will unlock any jobs that have been locked for more than 10 minutes,
     so that they can be executed by another job executor thread.
     </para>
 
@@ -230,6 +227,127 @@
     <literal>READ_COMMITTED</literal> is not enough because it allows for Non-Repeatable reads to occur.  
     So <literal>REPEATABLE_READ</literal> is required if you configure more than one job executor thread.
     </para>
+
+    <para>
+    Configuration properties related to the job executor are:
+    </para>
+
+    <variablelist>
+
+        <varlistentry>
+            <term><property>jbpmConfiguration</property></term>
+            <listitem>
+                <para>
+                    The bean from which configuration is retrieved.
+                </para>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>name</property></term>
+            <listitem>
+                <para>
+                    The name of this executor.
+                </para>
+                <important>
+                    <para>
+                        This name should be unique for each node, when more
+                        than one jBPM instance is started on a single machine.
+                    </para>
+                </important>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>nbrOfThreads</property></term>
+            <listitem>
+                <para>
+                    The number of executor threads that are started.
+                </para>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>idleInterval</property></term>
+            <listitem>
+                <para>
+                    The interval that the dispatcher thread will wait before
+                    checking the job queue, if there are no jobs pending.
+                </para>
+                <note>
+                    <para>
+                        The dispatcher thread is automatically notifed when jobs
+                        are added to the queue.
+                    </para>
+                </note>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>retryInterval</property></term>
+            <listitem>
+                <para>
+                    The interval that a job will wait between retries, if it
+                    fails during execution.
+                </para>
+                <note>
+                    <para>
+                        The maximum number of retries is configured by
+                        <property>jbpm.job.retries</property>.
+                    </para>
+                </note>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>maxIdleInterval</property></term>
+            <listitem>
+                <para>
+                    The maximum period for <property>idleInterval</property>.
+                </para>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>historyMaxSize</property></term>
+            <listitem>
+                <para>
+                    This property is deprecated, and has no affect.
+                </para>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>maxLockTime</property></term>
+            <listitem>
+                <para>
+                    The macimum time that a job can be locked, before the
+                    lock-monitor thread will unlock it.
+                </para>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>lockMonitorInterval</property></term>
+            <listitem>
+                <para>
+                    The period for which the lock-monitor thread will sleep
+                    between checking for locked jobs.
+                </para>
+            </listitem>
+        </varlistentry>
+
+        <varlistentry>
+            <term><property>lockBufferTime</property></term>
+            <listitem>
+                <para>
+                    This property is deprecated, and has no affect.
+                </para>
+            </listitem>
+        </varlistentry>
+
+    </variablelist>
+
   </section>
 
   <section id="jbpmsbuiltinasynchronousmessaging">

@@ -219,6 +219,10 @@ public class JobExecutorThread extends Thread implements Deactivable {
       // unlock job
       job.setLockOwner(null);
       job.setLockTime(null);
+      if (job.getException() != null)
+      {
+    	  job.setRetries(job.getRetries()+1) ;
+      }
     }
     catch (RuntimeException e) {
       jbpmContext.setRollbackOnly();

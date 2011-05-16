@@ -109,8 +109,8 @@
       <int value="60000" />
     </property>
     <property name="retryInterval">
-      <!-- 1 second -->
-      <int value="1000" />
+      <!-- 4 seconds -->
+      <int value="4000" />
     </property>
     <property name="maxIdleInterval">
       <!-- 1 hour -->

@@ -401,16 +401,6 @@
     ]]>
   </query>
 
-  <query name="JobSession.releaseLockedJobs">
-    <![CDATA[
-      update org.jbpm.job.Job job
-      set job.lockOwner = null, job.lockTime = null
-      where (job.lockOwner = :lockOwner)
-      and job.retries > 0
-      and job.isSuspended = false
-    ]]>
-  </query>
-
   <!-- related to Tasks            -->
   <!-- ########################### -->
 

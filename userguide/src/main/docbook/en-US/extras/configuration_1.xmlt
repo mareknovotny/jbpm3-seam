@@ -59,7 +59,8 @@
       </field>
       <field name='name'><string value='JbpmJobExecutor' /></field>
       <field name='nbrOfThreads'><int value='1' /></field>
-      <field name='idleInterval'><int value='5000' /></field>
+      <field name='idleInterval'><int value='60000' /></field>
+      <field name='retryInterval'><int value='4000' /></field>
       <!-- 1 hour -->
       <field name='maxIdleInterval'><int value='3600000' /></field> 
       <field name='historyMaxSize'><int value='20' /></field>

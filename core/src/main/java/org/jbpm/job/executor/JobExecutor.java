@@ -17,8 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.jbpm.JbpmConfiguration;
-import org.jbpm.JbpmContext;
-import org.jbpm.db.JobSession;
 import org.jbpm.job.Job;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.Condition;
@@ -498,37 +496,10 @@ public class JobExecutor implements Serializable {
 
   private void activateDispatcher() {
     waitingExecutorLock.lock() ;
-    try {
-      if (!dispatcherActive) {
-        unlockOurJobs() ;
-        dispatcherActive = true ;
-      }
-    } finally {
-      waitingExecutorLock.unlock() ;
-    }
+    dispatcherActive = true ;
+    waitingExecutorLock.unlock() ;
   }
   
-  private void unlockOurJobs() {
-    final JbpmContext jbpmContext = getJbpmConfiguration().createJbpmContext();
-    try {
-      final String lockOwner = getName();
-      final JobSession jobSession = jbpmContext.getJobSession();
-      jobSession.releaseLockedJobs(lockOwner);
-    } catch (RuntimeException e) {
-      jbpmContext.setRollbackOnly();
-      if (log.isDebugEnabled()) log.debug("failed to release locked jobs", e);
-    } catch (Error e) {
-      jbpmContext.setRollbackOnly();
-      throw e;
-    } finally {
-      try {
-        jbpmContext.close();
-      }  catch (RuntimeException e) {
-        if (log.isDebugEnabled()) log.debug("failed to release locked jobs", e);
-      }
-    }
-  }
-
   private void deactivateDispatcher() {
     waitingExecutorLock.lock() ;
     try {
