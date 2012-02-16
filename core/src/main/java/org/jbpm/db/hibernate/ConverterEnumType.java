@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 import org.jbpm.context.exe.Converter;
 
@@ -88,4 +89,17 @@ public class ConverterEnumType implements UserType, Serializable {
     String converterDatabaseId = Converters.getConverterId((Converter) value);
     preparedStatement.setString(index, converterDatabaseId);
   }
+
+public Object nullSafeGet(ResultSet rs, String[] names,
+		SessionImplementor session, Object owner) throws HibernateException,
+		SQLException {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+public void nullSafeSet(PreparedStatement st, Object value, int index,
+		SessionImplementor session) throws HibernateException, SQLException {
+	// TODO Auto-generated method stub
+	
+}
 }

@@ -24,8 +24,8 @@ package org.jbpm.taskmgmt.exe;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hibernate.Hibernate;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StandardBasicTypes;
 
 import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.db.AbstractDbTestCase;
@@ -336,7 +336,7 @@ public class TaskVariablesDbTest extends AbstractDbTestCase {
       Restrictions.eq("actorId", actorId)).createCriteria("variableInstances").add(
       Restrictions.eq("name", variableName)).add(
       Restrictions.sqlRestriction("{alias}.LONGVALUE_ = ?", new Long(variableValue),
-        Hibernate.LONG)).uniqueResult();
+        StandardBasicTypes.LONG)).uniqueResult();
   }
 
   public static final class CreateTasksAction implements ActionHandler {

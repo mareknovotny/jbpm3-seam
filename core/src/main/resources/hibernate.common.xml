@@ -23,12 +23,13 @@
     <!-- # cache settings                  # -->
     <!-- ################################### -->
 
-    <property name="hibernate.cache.use_second_level_cache">true</property>
+    <property name="hibernate.cache.use_second_level_cache">false</property>
+    <property name="hibernate.cache.use_query_cache">false</property>
 
     <!-- Memory cache (begin) -->
-    <property name="hibernate.cache.provider_class">
-      org.hibernate.cache.HashtableCacheProvider
-    </property>
+<!--     <property name="hibernate.cache.provider_class"> -->
+<!--       org.hibernate.cache.ehcache.EhCacheRegionFactory -->
+<!--     </property> -->
     <!-- Memory cache (end) -->
 
     <!--

@@ -85,7 +85,7 @@ public class Join extends Node {
   public void read(Element element, JpdlXmlReader jpdlReader) {
     String lock = element.attributeValue("lock");
     if (lock != null) {
-      LockMode lockMode = LockMode.parse(lock);
+      LockMode lockMode = LockMode.valueOf(lock);
       if (lockMode != null)
         parentLockMode = lockMode.toString();
       else if ("pessimistic".equals(lock))
@@ -115,7 +115,7 @@ public class Join extends Node {
       Session session;
       if (jbpmContext != null && (session = jbpmContext.getSession()) != null) {
         // parse lock mode
-        LockMode lockMode = LockMode.parse(parentLockMode);
+        LockMode lockMode = LockMode.valueOf(parentLockMode);
         // call load() instead of lock() to obtain an unversioned lock
         // https://jira.jboss.org/browse/SOA-1476
         ProcessInstance processInstance = (ProcessInstance) session.load(ProcessInstance.class,

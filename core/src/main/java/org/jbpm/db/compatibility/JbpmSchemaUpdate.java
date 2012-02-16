@@ -14,14 +14,14 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.cfg.Settings;
-import org.hibernate.connection.ConnectionProvider;
-import org.hibernate.connection.ConnectionProviderFactory;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.internal.util.ReflectHelper;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
-import org.hibernate.util.ReflectHelper;
 
 import org.jbpm.db.JbpmSchema;
 
@@ -36,7 +36,7 @@ import org.jbpm.db.JbpmSchema;
 public class JbpmSchemaUpdate {
 
   private static final Log log = LogFactory.getLog(JbpmSchemaUpdate.class);
-  private ConnectionProvider connectionProvider;
+  private Session session;
   private Configuration configuration;
   private Dialect dialect;
   private List exceptions;
@@ -52,14 +52,14 @@ public class JbpmSchemaUpdate {
     Properties props = new Properties();
     props.putAll(dialect.getDefaultProperties());
     props.putAll(connectionProperties);
-    connectionProvider = ConnectionProviderFactory.newConnectionProvider(props);
+    this.session = cfg.buildSessionFactory().openSession();
     exceptions = new ArrayList();
   }
 
   public JbpmSchemaUpdate(Configuration cfg, Settings settings) throws HibernateException {
     this.configuration = cfg;
-    dialect = settings.getDialect();
-    connectionProvider = settings.getConnectionProvider();
+    this.session = cfg.buildSessionFactory().openSession();
+    dialect = Dialect.getDialect(cfg.getProperties());
     exceptions = new ArrayList();
   }
 
@@ -142,7 +142,7 @@ public class JbpmSchemaUpdate {
       DatabaseMetadata meta;
       try {
         log.info("fetching database metadata");
-        connection = connectionProvider.getConnection();
+        connection = ((SessionImplementor) session).connection();
         if (!connection.getAutoCommit()) {
           connection.commit();
           connection.setAutoCommit(true);
@@ -188,10 +188,7 @@ public class JbpmSchemaUpdate {
     }
     finally {
       try {
-        if (stmt != null) stmt.close();
-        if (!autoCommitWasEnabled) connection.setAutoCommit(false);
-        if (connection != null) connection.close();
-        if (connectionProvider != null) connectionProvider.close();
+        session.disconnect();
       }
       catch (Exception e) {
         exceptions.add(e);

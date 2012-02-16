@@ -180,18 +180,7 @@ public class JbpmSessionFactory implements Serializable {
   public JbpmSession openJbpmSession(Connection jdbcConnection) {
     JbpmSession dbSession;
     try {
-      Session session;
-      if (jdbcConnection == null) {
-        // use the hibernate properties in the nwsp.properties file to
-        // create a jdbc connection for the created hibernate session.
-        session = getSessionFactory().openSession();
-      }
-      else {
-        // use the client provided jdbc connection in
-        // the created hibernate session.
-        session = getSessionFactory().openSession(jdbcConnection);
-      }
-
+      Session session = getSessionFactory().openSession();
       dbSession = new JbpmSession(this, session);
     }
     catch (HibernateException e) {

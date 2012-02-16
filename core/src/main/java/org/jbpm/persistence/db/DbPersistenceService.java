@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import javax.imageio.spi.ServiceRegistry;
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -38,8 +39,10 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StaleStateException;
 import org.hibernate.Transaction;
-import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.exception.LockAcquisitionException;
+import org.hibernate.service.ServiceRegistryBuilder;
 
 import org.jbpm.JbpmContext;
 import org.jbpm.JbpmException;
@@ -103,12 +106,10 @@ public class DbPersistenceService implements PersistenceService {
         mustSessionBeFlushed = false;
         mustSessionBeClosed = false;
       }
-      else {
-        Connection connection = getConnection(false);
-        session = connection != null ? sessionFactory.openSession(connection)
-          : sessionFactory.openSession();
+      else {        
         mustSessionBeFlushed = true;
         mustSessionBeClosed = true;
+        return sessionFactory.openSession();
       }
 
       if (isTransactionEnabled) beginTransaction();
@@ -164,8 +165,7 @@ public class DbPersistenceService implements PersistenceService {
         // resolve session or return
         Session session = this.session;
         if (session != null || resolveSession && (session = getSession()) != null) {
-          // get connection from session
-          connection = session.connection();
+                  
           /*
            * If the session is using aggressive connection release (as in a CMT environment),
            * the application is responsible for closing the returned connection. Otherwise, the
@@ -175,6 +175,7 @@ public class DbPersistenceService implements PersistenceService {
           ConnectionReleaseMode releaseMode = sessionFactory.getSettings()
             .getConnectionReleaseMode();
           mustConnectionBeClosed = releaseMode == ConnectionReleaseMode.AFTER_STATEMENT;
+          connection = ((SessionImplementor) session).connection();
         }
       }
     }
@@ -274,7 +275,7 @@ public class DbPersistenceService implements PersistenceService {
     if (mustSessionBeClosed) {
       if (session != null) {
         try {
-          session.close();
+          session.disconnect();
         }
         catch (RuntimeException e) {
           return e;

@@ -13,7 +13,7 @@
   <groupId>org.jbpm.jbpm3</groupId>
   <artifactId>jbpm</artifactId>
   <packaging>pom</packaging>
-  <version>3.2.10.SP3</version>
+  <version>3.2.10.SP3-seam2</version>
 
   <!-- Source Control Management -->
   <scm>
@@ -41,8 +41,8 @@
 
   <!-- Properties -->
   <properties>
-    <maven.compiler.source>1.4</maven.compiler.source>
-    <maven.compiler.target>1.4</maven.compiler.target>
+    <maven.compiler.source>1.5</maven.compiler.source>
+    <maven.compiler.target>1.5</maven.compiler.target>
 
     <!-- Dependency versions -->
     <cargo.version>1.0.3</cargo.version>
@@ -207,8 +207,8 @@
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
-        <artifactId>hibernate</artifactId>
-        <version>3.2.4.sp1</version>
+        <artifactId>hibernate-core</artifactId>
+        <version>4.0.1.Final</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.cluster</groupId>

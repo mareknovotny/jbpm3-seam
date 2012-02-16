@@ -33,10 +33,11 @@ import java.sql.Types;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.internal.util.StringHelper;
+import org.hibernate.internal.util.compare.EqualsHelper;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.EnhancedUserType;
-import org.hibernate.util.EqualsHelper;
-import org.hibernate.util.StringHelper;
 
 /**
  * Replacement for {@link org.hibernate.type.TextType} made to work around a <em>feature</em> in the
@@ -242,4 +243,17 @@ public class SybaseTextType implements EnhancedUserType, Serializable {
   public Object fromStringValue(String xml) {
     return xml;
   }
+
+public Object nullSafeGet(ResultSet rs, String[] names,
+		SessionImplementor session, Object owner) throws HibernateException,
+		SQLException {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+public void nullSafeSet(PreparedStatement st, Object value, int index,
+		SessionImplementor session) throws HibernateException, SQLException {
+	// TODO Auto-generated method stub
+	
+}
 }

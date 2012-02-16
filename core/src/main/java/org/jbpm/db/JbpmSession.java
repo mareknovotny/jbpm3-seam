@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.jbpm.JbpmException;
 
 /**
@@ -99,7 +100,7 @@ public class JbpmSession {
 
   public Connection getConnection() {
     try {
-      return session.connection();
+      return ((SessionImplementor) session).connection();
     } catch (Exception e) {
       log.error(e);
       handleException();
@@ -186,7 +187,7 @@ public class JbpmSession {
       if ( (session!=null)
            && (session.isOpen())
          ) {
-        session.close();
+        session.disconnect();
       }
     } catch (Exception e) {
       log.error(e);

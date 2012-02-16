@@ -4,6 +4,7 @@ import javax.transaction.Synchronization;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
+import org.hibernate.engine.transaction.spi.LocalStatus;
 
 public class MockTransaction implements Transaction {
 
@@ -38,5 +39,25 @@ public class MockTransaction implements Transaction {
 
   public void setTimeout(int seconds) {
   }
+
+	public boolean isInitiator() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public LocalStatus getLocalStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isParticipating() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public int getTimeout() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }

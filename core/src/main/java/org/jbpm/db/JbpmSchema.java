@@ -44,20 +44,24 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.connection.ConnectionProvider;
-import org.hibernate.connection.ConnectionProviderFactory;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.Mapping;
+import org.hibernate.engine.spi.Mapping;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.Table;
+import org.hibernate.service.jdbc.connections.internal.ConnectionProviderInitiator;
+import org.hibernate.service.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.tool.hbm2ddl.ColumnMetadata;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.TableMetadata;
-import org.hibernate.util.JDBCExceptionReporter;
 
 import org.jbpm.JbpmException;
+import org.jbpm.logging.db.JDBCExceptionReporter;
 import org.jbpm.util.IoUtil;
 
 /**
@@ -66,15 +70,16 @@ import org.jbpm.util.IoUtil;
 public class JbpmSchema {
 
   private final Configuration configuration;
-  private ConnectionProvider connectionProvider;
   private String delimiter;
   private final List exceptions = new ArrayList();
+  private Session session ;
 
   private static final String[] EMPTY_STRING_ARRAY = {};
   private static final String[] TABLE_TYPES = { "TABLE" };
 
   public JbpmSchema(Configuration configuration) {
     this.configuration = configuration;
+    this.session = configuration.buildSessionFactory().openSession();
   }
 
   private Dialect getDialect() {
@@ -125,7 +130,7 @@ public class JbpmSchema {
   public String[] getUpdateSql() {
     Connection connection = null;
     try {
-      connection = createConnection();
+      connection = getConnection();
       return configuration
         .generateSchemaUpdateScript(getDialect(), getDatabaseMetadata(connection));
     }
@@ -183,7 +188,7 @@ public class JbpmSchema {
   private void execute(String[] script) throws SQLException {
     Connection connection = null;
     try {
-      connection = createConnection();
+      connection = getConnection();
       Statement statement = connection.createStatement();
       try {
         final boolean showSql = getShowSql();
@@ -266,7 +271,7 @@ public class JbpmSchema {
   public Map getRowsPerTable() {
     Connection connection = null;
     try {
-      connection = createConnection();
+      connection = getConnection();
       Map rowsPerTable = new HashMap();
 
       Statement statement = connection.createStatement();
@@ -305,7 +310,7 @@ public class JbpmSchema {
   public Set getExistingTables() {
     Connection connection = null;
     try {
-      connection = createConnection();
+      connection = getConnection();
       Set existingTables = new HashSet();
 
       DatabaseMetaData metaData = connection.getMetaData();
@@ -339,7 +344,7 @@ public class JbpmSchema {
   public boolean tableExists(String tableName) {
     Connection connection = null;
     try {
-      connection = createConnection();
+      connection = getConnection();
 
       DatabaseMetaData metaData = connection.getMetaData();
       ResultSet resultSet = metaData
@@ -367,7 +372,7 @@ public class JbpmSchema {
 
     Connection connection = null;
     try {
-      connection = createConnection();
+      connection = getConnection();
       TableMetadata tableInfo = getTableMetadata(connection, table);
 
       Statement statement = connection.createStatement();
@@ -571,39 +576,12 @@ public class JbpmSchema {
     return new JbpmSchema(configuration);
   }
 
-  private Connection createConnection() throws SQLException {
-    try {
-      connectionProvider = ConnectionProviderFactory.newConnectionProvider(configuration
-        .getProperties());
-    }
-    catch (HibernateException e) {
-      throw new SQLException(e.getMessage());
-    }
-    Connection connection = connectionProvider.getConnection();
-    if (connection.getAutoCommit() == false) {
-      connection.commit();
-      connection.setAutoCommit(true);
-    }
-    return connection;
+  private Connection getConnection() throws SQLException {    
+    return ((SessionImplementor) session).connection();
   }
 
   private void closeConnection(Connection connection) {
-    if (connectionProvider != null) {
-      try {
-        if (connection != null) {
-          JDBCExceptionReporter.logAndClearWarnings(connection);
-          connectionProvider.closeConnection(connection);
-        }
-      }
-      catch (SQLException e) {
-        exceptions.add(e);
-        JDBCExceptionReporter.logExceptions(e);
-      }
-      finally {
-        connectionProvider.close();
-        connectionProvider = null;
-      }
-    }
+
   }
 
 }
