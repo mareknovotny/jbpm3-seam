@@ -12,14 +12,17 @@ import org.hibernate.EntityMode;
 import org.hibernate.Filter;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
+import org.hibernate.IdentifierLoadAccess;
 import org.hibernate.LobHelper;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
+import org.hibernate.NaturalIdLoadAccess;
 import org.hibernate.Query;
 import org.hibernate.ReplicationMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionBuilder;
+import org.hibernate.SimpleNaturalIdLoadAccess;
 import org.hibernate.Transaction;
 import org.hibernate.TypeHelper;
 import org.hibernate.UnknownProfileException;
@@ -30,7 +33,37 @@ import org.hibernate.type.Type;
 
 public class MockSession implements org.hibernate.Session {
   
-  private static final long serialVersionUID = 1L;
+  public IdentifierLoadAccess byId(Class arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IdentifierLoadAccess byId(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public NaturalIdLoadAccess byNaturalId(Class arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public NaturalIdLoadAccess byNaturalId(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public SimpleNaturalIdLoadAccess bySimpleNaturalId(Class arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public SimpleNaturalIdLoadAccess bySimpleNaturalId(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+private static final long serialVersionUID = 1L;
 
   final Connection connection;
   final SessionFactory sessionFactory;

@@ -43,23 +43,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.Table;
-import org.hibernate.service.jdbc.connections.internal.ConnectionProviderInitiator;
-import org.hibernate.service.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.tool.hbm2ddl.ColumnMetadata;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 import org.hibernate.tool.hbm2ddl.TableMetadata;
-
 import org.jbpm.JbpmException;
 import org.jbpm.logging.db.JDBCExceptionReporter;
 import org.jbpm.util.IoUtil;
@@ -581,7 +575,16 @@ public class JbpmSchema {
   }
 
   private void closeConnection(Connection connection) {
-
+    if (connection != null) {
+      JDBCExceptionReporter.logAndClearWarnings(connection);
+      try {
+          connection.close();
+      }
+      catch (SQLException e) {
+        exceptions.add(e);
+        JDBCExceptionReporter.logExceptions(e);
+      }
+    }
   }
 
 }

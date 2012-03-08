@@ -90,16 +90,17 @@ public class ConverterEnumType implements UserType, Serializable {
     preparedStatement.setString(index, converterDatabaseId);
   }
 
-public Object nullSafeGet(ResultSet rs, String[] names,
-		SessionImplementor session, Object owner) throws HibernateException,
-		SQLException {
-	// TODO Auto-generated method stub
-	return null;
-}
-
-public void nullSafeSet(PreparedStatement st, Object value, int index,
-		SessionImplementor session) throws HibernateException, SQLException {
-	// TODO Auto-generated method stub
+	public Object nullSafeGet(ResultSet rs, String[] names,
+			SessionImplementor session, Object owner) throws HibernateException,
+			SQLException {
 	
-}
+		return nullSafeGet(rs, names, owner);
+	}
+
+	public void nullSafeSet(PreparedStatement st, Object value, int index,
+			SessionImplementor session) throws HibernateException, SQLException {
+	
+		nullSafeSet(st, value, index);
+		
+	}
 }

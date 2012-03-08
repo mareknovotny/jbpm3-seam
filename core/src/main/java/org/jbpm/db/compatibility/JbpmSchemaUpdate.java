@@ -188,7 +188,9 @@ public class JbpmSchemaUpdate {
     }
     finally {
       try {
-        session.disconnect();
+		  if (stmt != null) stmt.close();
+		  if (!autoCommitWasEnabled) connection.setAutoCommit(false);
+		  if (connection != null) connection.close();
       }
       catch (Exception e) {
         exceptions.add(e);

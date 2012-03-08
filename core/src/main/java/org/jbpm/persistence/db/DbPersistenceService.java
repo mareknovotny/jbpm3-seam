@@ -42,7 +42,6 @@ import org.hibernate.Transaction;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.exception.LockAcquisitionException;
-import org.hibernate.service.ServiceRegistryBuilder;
 
 import org.jbpm.JbpmContext;
 import org.jbpm.JbpmException;
@@ -106,10 +105,10 @@ public class DbPersistenceService implements PersistenceService {
         mustSessionBeFlushed = false;
         mustSessionBeClosed = false;
       }
-      else {        
+      else {
+    	session = sessionFactory.openSession();  
         mustSessionBeFlushed = true;
         mustSessionBeClosed = true;
-        return sessionFactory.openSession();
       }
 
       if (isTransactionEnabled) beginTransaction();

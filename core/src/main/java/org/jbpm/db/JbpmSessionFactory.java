@@ -38,7 +38,6 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
-
 import org.jbpm.JbpmConfiguration.Configs;
 import org.jbpm.JbpmException;
 import org.jbpm.util.ClassLoaderUtil;
@@ -180,7 +179,16 @@ public class JbpmSessionFactory implements Serializable {
   public JbpmSession openJbpmSession(Connection jdbcConnection) {
     JbpmSession dbSession;
     try {
-      Session session = getSessionFactory().openSession();
+      Session session = null;	
+      if (jdbcConnection == null)
+      {
+    	  session = getSessionFactory().openSession();
+      }
+      else 
+      {
+    	  throw new JbpmException("Unsupported operation");
+//    	  StatelessSession session = getSessionFactory().openStatelessSession(jdbcConnection);
+      }
       dbSession = new JbpmSession(this, session);
     }
     catch (HibernateException e) {
@@ -190,7 +198,7 @@ public class JbpmSessionFactory implements Serializable {
     return dbSession;
   }
 
-  public JbpmSession openJbpmSession(Session session) {
+  /* public JbpmSession openJbpmSession(Session session) {
     return new JbpmSession(null, session);
   }
 
@@ -198,7 +206,7 @@ public class JbpmSessionFactory implements Serializable {
     JbpmSession dbSession = openJbpmSession((Connection) null);
     dbSession.beginTransaction();
     return dbSession;
-  }
+  }*/
 
   public SessionFactory getSessionFactory() {
     return sessionFactory;

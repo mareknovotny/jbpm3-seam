@@ -245,8 +245,8 @@ public class PersistenceServiceDbTest extends AbstractJbpmTestCase {
       DbPersistenceServiceFactory persistenceServiceFactory = (DbPersistenceServiceFactory) jbpmContext.getServiceFactory(Services.SERVICENAME_PERSISTENCE);
       SessionFactory sessionFactory = persistenceServiceFactory.getSessionFactory();
 
-      DataSource dataSource = Jdbc.createRecordedDataSource();
-      Connection connection = dataSource.getConnection();
+//      DataSource dataSource = Jdbc.createRecordedDataSource();
+//      Connection connection = dataSource.getConnection();
       Session session = sessionFactory.openSession();
 
       jbpmContext.setSession(session);

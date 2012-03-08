@@ -50,7 +50,7 @@
 
     <!-- Database Driver Versions  -->
     <db2jcc.version>3.1.57</db2jcc.version>
-    <hsqldb.version>1.8.0.7</hsqldb.version>
+    <hsqldb.version>1.8.0.10</hsqldb.version>
     <jconnect.version>6.0.5</jconnect.version>
     <jtds.version>1.2.2</jtds.version>
     <msjdbc.version>1.2.2828.100</msjdbc.version>
@@ -208,7 +208,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
-        <version>4.0.1.Final</version>
+        <version>4.1.0.Final</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.cluster</groupId>
@@ -409,6 +409,38 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.hibernate</groupId>
+    	<artifactId>hibernate-ehcache</artifactId>
+    	<version>4.1.0.Final</version>
+    	<exclusions>
+    		<exclusion>
+    			<artifactId>slf4j-api</artifactId>
+    			<groupId>org.slf4j</groupId>
+    		</exclusion>
+    	</exclusions>
+    </dependency>
+    <dependency>
+    	<groupId>org.slf4j</groupId>
+    	<artifactId>slf4j-log4j12</artifactId>
+    	<version>1.6.1</version>
+    	<exclusions>
+    		<exclusion>
+    			<artifactId>slf4j-api</artifactId>
+    			<groupId>org.slf4j</groupId>
+    		</exclusion>
+    	</exclusions>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.jackrabbit</groupId>
+    	<artifactId>jackrabbit-core</artifactId>
+    	<exclusions>
+    		<exclusion>
+    			<artifactId>slf4j-api</artifactId>
+    			<groupId>org.slf4j</groupId>
+    		</exclusion>
+    	</exclusions>
     </dependency>
   </dependencies>
 

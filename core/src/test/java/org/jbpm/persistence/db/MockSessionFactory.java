@@ -12,6 +12,7 @@ import javax.transaction.TransactionManager;
 
 import org.hibernate.Cache;
 import org.hibernate.ConnectionReleaseMode;
+import org.hibernate.CustomEntityDirtinessStrategy;
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
 import org.hibernate.MappingException;
@@ -27,6 +28,7 @@ import org.hibernate.cache.spi.Region;
 import org.hibernate.cache.spi.UpdateTimestampsCache;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Settings;
+import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.function.SQLFunctionRegistry;
 import org.hibernate.engine.ResultSetMappingDefinition;
@@ -54,6 +56,21 @@ import org.hibernate.type.Type;
 import org.hibernate.type.TypeResolver;
 
 public class MockSessionFactory implements SessionFactoryImplementor {
+
+	public CurrentTenantIdentifierResolver getCurrentTenantIdentifierResolver() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public CustomEntityDirtinessStrategy getCustomEntityDirtinessStrategy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Region getNaturalIdCacheRegion(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	private Settings settings;
 	private boolean failOnFlush;

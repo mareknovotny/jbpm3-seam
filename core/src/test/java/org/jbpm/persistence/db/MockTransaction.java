@@ -2,6 +2,8 @@ package org.jbpm.persistence.db;
 
 import javax.transaction.Synchronization;
 
+import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import org.hibernate.engine.transaction.spi.LocalStatus;
@@ -41,22 +43,34 @@ public class MockTransaction implements Transaction {
   }
 
 	public boolean isInitiator() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public LocalStatus getLocalStatus() {
-		// TODO Auto-generated method stub
-		return null;
+		if (isActive())
+		{
+			return LocalStatus.ACTIVE;
+		}
+		else if (!isActive())
+		{
+			return LocalStatus.NOT_ACTIVE;
+		}
+		else if (wasRolledBack())
+		{
+			return LocalStatus.ROLLED_BACK;
+		}
+		else 
+		{
+			return LocalStatus.COMMITTED;
+		}
 	}
 
-	public boolean isParticipating() {
-		// TODO Auto-generated method stub
+	public boolean isParticipating() 
+	{
 		return false;
 	}
 
 	public int getTimeout() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
