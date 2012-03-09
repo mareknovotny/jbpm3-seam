@@ -28,9 +28,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
 
@@ -42,8 +42,8 @@ public class PermissionUserType implements CompositeUserType {
     return PROPERTY_NAMES;
   }
 
-  private static final Type[] PROPERTY_TYPES = new Type[] { Hibernate.STRING, Hibernate.STRING,
-      Hibernate.STRING };
+  private static final Type[] PROPERTY_TYPES = new Type[] { StandardBasicTypes.STRING, StandardBasicTypes.STRING,
+	  StandardBasicTypes.STRING };
 
   public Type[] getPropertyTypes() {
     return PROPERTY_TYPES;

@@ -35,19 +35,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.connection.ConnectionProvider;
-import org.hibernate.connection.ConnectionProviderFactory;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.Mapping;
+import org.hibernate.engine.spi.Mapping;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
-import org.hibernate.util.JDBCExceptionReporter;
-
 import org.jbpm.JbpmException;
+import org.jbpm.logging.db.JDBCExceptionReporter;
 
 public class IdentitySchema {
 
@@ -57,7 +55,8 @@ public class IdentitySchema {
   };
 
   private final Configuration configuration;
-  private ConnectionProvider connectionProvider;
+  
+  private Session session;
 
   public IdentitySchema(Configuration configuration) {
     this.configuration = configuration;
@@ -256,33 +255,22 @@ public class IdentitySchema {
     return "true".equalsIgnoreCase(configuration.getProperty(Environment.SHOW_SQL));
   }
 
-  private void closeConnection(Connection connection) {
-    if (connectionProvider != null) {
-      try {
-        if (connection != null) {
-          JDBCExceptionReporter.logAndClearWarnings(connection);
-          connectionProvider.closeConnection(connection);
-        }
-      }
-      catch (SQLException e) {
-        JDBCExceptionReporter.logExceptions(e);
-      }
-      finally {
-        connectionProvider.close();
-        connectionProvider = null;
-      }
-    }
-  }
+	private void closeConnection(Connection connection) {
+		if (connection != null) {
+			JDBCExceptionReporter.logAndClearWarnings(connection);
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				JDBCExceptionReporter.logExceptions(e);
+			}
+		}
+	}
 
   private Connection createConnection() throws SQLException {
-    try {
-      connectionProvider = ConnectionProviderFactory.newConnectionProvider(configuration.getProperties());
-    }
-    catch (HibernateException e) {
-      throw new SQLException(e.getMessage());
-    }
-    Connection connection = connectionProvider.getConnection();
-    if (connection.getAutoCommit() == false) {
+	this.session = configuration.buildSessionFactory().openSession();
+	Connection connection = ((SessionImplementor) session).connection();
+
+	if (connection.getAutoCommit() == false) {
       connection.commit();
       connection.setAutoCommit(true);
     }

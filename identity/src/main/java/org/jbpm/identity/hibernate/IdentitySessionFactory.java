@@ -25,7 +25,6 @@ import java.sql.Connection;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-
 import org.jbpm.identity.Group;
 import org.jbpm.identity.Membership;
 import org.jbpm.identity.User;
@@ -71,7 +70,7 @@ public class IdentitySessionFactory {
   }
 
   public IdentitySession openIdentitySession(Connection connection) {
-    return new IdentitySession(sessionFactory.openSession(connection));
+    return openIdentitySession();
   }
 
   public void evictCachedIdentities() {

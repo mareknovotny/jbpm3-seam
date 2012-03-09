@@ -38,7 +38,7 @@
   </category>
 
   <category name="org.hibernate">
-    <priority value="INFO" />
+    <priority value="DEBUG" />
   </category>
 
   <!-- proxy narrowing warnings -->
