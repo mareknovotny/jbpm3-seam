@@ -7,7 +7,7 @@
   <parent>
     <artifactId>jbpm</artifactId>
     <groupId>org.jbpm.jbpm3</groupId>
-    <version>3.2.10.SP3_seam2</version>
+    <version>3.2.10.SP3_seam2_hibernate5</version>
   </parent>
 
   <properties>
