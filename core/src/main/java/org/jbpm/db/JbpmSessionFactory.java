@@ -26,7 +26,6 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -34,25 +33,27 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.jbpm.JbpmConfiguration.Configs;
 import org.jbpm.JbpmException;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.util.ClassLoaderUtil;
 import org.jbpm.util.JndiUtil;
 
 /**
  * creates JbpmSessions. Obtain a JbpmSessionFactory with
- * 
+ *
  * <pre>
  * static JbpmSessionFactory jbpmSessionFactory = JbpmSessionFactory.buildJbpmSessionFactory();
  * </pre>
- * 
+ *
  * and store it somewhere static. It takes quite some time to create a JbpmSessionFactory, but
  * you only have to do it once. After that, creating JbpmSession's is really fast.
- * 
+ *
  * @deprecated use {@link org.jbpm.JbpmContext} and {@link org.jbpm.JbpmConfiguration} instead.
  */
 public class JbpmSessionFactory implements Serializable {
@@ -68,10 +69,10 @@ public class JbpmSessionFactory implements Serializable {
     return null;
   }
 
-  private Configuration configuration;
+  private JbpmHibernateConfiguration jbpmHibernateConfiguration;
   private SessionFactory sessionFactory;
-  private Collection hibernatableLongIdClasses;
-  private Collection hibernatableStringIdClasses;
+  private Collection<Class<?>> hibernatableLongIdClasses;
+  private Collection<Class<?>> hibernatableStringIdClasses;
   private JbpmSchema jbpmSchema;
 
   private static JbpmSessionFactory instance;
@@ -99,12 +100,12 @@ public class JbpmSessionFactory implements Serializable {
     return instance;
   }
 
-  public JbpmSessionFactory(Configuration configuration) {
-    this(configuration, buildSessionFactory(configuration));
+  public JbpmSessionFactory(JbpmHibernateConfiguration jbpmHibernateConfiguration) {
+    this(jbpmHibernateConfiguration, buildSessionFactory(jbpmHibernateConfiguration));
   }
 
-  public JbpmSessionFactory(Configuration configuration, SessionFactory sessionFactory) {
-    this.configuration = configuration;
+  public JbpmSessionFactory(JbpmHibernateConfiguration jbpmHibernateConfiguration, SessionFactory sessionFactory) {
+    this.jbpmHibernateConfiguration = jbpmHibernateConfiguration;
     this.sessionFactory = sessionFactory;
   }
 
@@ -113,24 +114,25 @@ public class JbpmSessionFactory implements Serializable {
   }
 
   public static JbpmSessionFactory buildJbpmSessionFactory(String configResource) {
-    return buildJbpmSessionFactory(createConfiguration(configResource));
+    return buildJbpmSessionFactory(createJbpmHibernateConfiguration(configResource));
   }
 
-  public static JbpmSessionFactory buildJbpmSessionFactory(Configuration configuration) {
-    return new JbpmSessionFactory(configuration);
+  public static JbpmSessionFactory buildJbpmSessionFactory(JbpmHibernateConfiguration jbpmHibernateConfiguration) {
+    return new JbpmSessionFactory(jbpmHibernateConfiguration);
   }
 
   private static String getConfigResource() {
     return Configs.getString("resource.hibernate.cfg.xml");
   }
 
-  public static Configuration createConfiguration() {
-    return createConfiguration(getConfigResource());
+  public static JbpmHibernateConfiguration createJbpmHibernateConfiguration() {
+    return createJbpmHibernateConfiguration(getConfigResource());
   }
 
-  public static Configuration createConfiguration(String configResource) {
+  public static JbpmHibernateConfiguration createJbpmHibernateConfiguration(String configResource) {
     // create the hibernate configuration
-    Configuration configuration = new Configuration();
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = new JbpmHibernateConfiguration();
+    Configuration configuration = jbpmHibernateConfiguration.getConfigurationProxy();
     if (configResource != null) {
       configuration.configure(configResource);
     }
@@ -157,11 +159,11 @@ public class JbpmSessionFactory implements Serializable {
       configuration.addProperties(properties);
     }
 
-    return configuration;
+    return jbpmHibernateConfiguration;
   }
 
-  public static SessionFactory buildSessionFactory(Configuration configuration) {
-    return configuration.buildSessionFactory();
+  public static SessionFactory buildSessionFactory(JbpmHibernateConfiguration jbpmHibernateConfiguration) {
+    return jbpmHibernateConfiguration.getConfigurationProxy().buildSessionFactory();
   }
 
   /**
@@ -179,14 +181,14 @@ public class JbpmSessionFactory implements Serializable {
   public JbpmSession openJbpmSession(Connection jdbcConnection) {
     JbpmSession dbSession;
     try {
-      Session session = null;	
+      Session session = null;
       if (jdbcConnection == null)
       {
-    	  session = getSessionFactory().openSession();
+          session = getSessionFactory().openSession();
       }
-      else 
+      else
       {
-    	  throw new JbpmException("Unsupported operation");
+          throw new JbpmException("Unsupported operation");
 //    	  StatelessSession session = getSessionFactory().openStatelessSession(jdbcConnection);
       }
       dbSession = new JbpmSession(this, session);
@@ -212,8 +214,8 @@ public class JbpmSessionFactory implements Serializable {
     return sessionFactory;
   }
 
-  public Configuration getConfiguration() {
-    return configuration;
+  public JbpmHibernateConfiguration getJbpmHibernateConfiguration() {
+    return jbpmHibernateConfiguration;
   }
 
   /**
@@ -233,15 +235,17 @@ public class JbpmSessionFactory implements Serializable {
   }
 
   public JbpmSchema getJbpmSchema() {
-    if (jbpmSchema == null) jbpmSchema = new JbpmSchema(configuration);
+    if (jbpmSchema == null) jbpmSchema = new JbpmSchema(jbpmHibernateConfiguration);
     return jbpmSchema;
   }
 
   private void initHibernatableClasses() {
-    hibernatableLongIdClasses = new HashSet();
-    hibernatableStringIdClasses = new HashSet();
-    for (Iterator iter = configuration.getClassMappings(); iter.hasNext();) {
-      PersistentClass persistentClass = (PersistentClass) iter.next();
+    hibernatableLongIdClasses = new HashSet<>();
+    hibernatableStringIdClasses = new HashSet<>();
+
+    MetadataImplementor metadataImplementor = jbpmHibernateConfiguration.getMetadataImplementor();
+
+    for (PersistentClass persistentClass : metadataImplementor.getEntityBindings()) {
       if (LongType.class == persistentClass.getIdentifier().getType().getClass()) {
         hibernatableLongIdClasses.add(persistentClass.getMappedClass());
       }

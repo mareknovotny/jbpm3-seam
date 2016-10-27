@@ -28,10 +28,10 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.hsqldb.jdbc.jdbcDataSource;
+import org.hsqldb.jdbc.JDBCDataSource;
 
 public class Jdbc {
-  
+
   public static void clearHsqlInMemoryDatabase() {
     try {
       Connection connection = DriverManager.getConnection("jdbc:hsqldb:mem:jbpm-mock-db");
@@ -41,19 +41,21 @@ public class Jdbc {
       throw new RuntimeException("problems cleaning hsql in memory db", e);
     }
   }
-  
+
   static Class[] recordedConnectionInterfaces = new Class[]{Connection.class, Recorded.class};
-  public static class MockDataSource extends jdbcDataSource {
+  public static class MockDataSource extends JDBCDataSource {
     private static final long serialVersionUID = 1L;
     public MockDataSource() {
       setDatabase("jdbc:hsqldb:mem:jbpm-mock-db");
       setUser("sa");
       setPassword("");
     }
+    @Override
     public Connection getConnection() throws SQLException {
       Connection connection = super.getConnection();
       return (Connection) ProxyEnhancer.addRecorder(connection, recordedConnectionInterfaces);
     }
+    @Override
     public Connection getConnection(String userName, String password) throws SQLException {
       Connection connection = super.getConnection(userName, password);
       return (Connection) ProxyEnhancer.addRecorder(connection, recordedConnectionInterfaces);

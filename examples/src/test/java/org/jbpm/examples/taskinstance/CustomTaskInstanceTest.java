@@ -24,12 +24,12 @@ package org.jbpm.examples.taskinstance;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.db.AbstractDbTestCase;
 import org.jbpm.db.JbpmSchema;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.persistence.db.DbPersistenceServiceFactory;
@@ -59,10 +59,10 @@ public class CustomTaskInstanceTest extends AbstractDbTestCase {
       jbpmConfiguration = JbpmConfiguration.parseResource("taskinstance/jbpm.cfg.xml");
       DbPersistenceServiceFactory factory = (DbPersistenceServiceFactory) jbpmConfiguration.getServiceFactory(Services.SERVICENAME_PERSISTENCE);
 
-      Configuration configuration = factory.getConfiguration();
-      configuration.addResource("taskinstance/CustomTaskInstance.hbm.xml");
+      JbpmHibernateConfiguration jbpmHibernateConfiguration = factory.getJbpmHibernateConfiguration();
+      jbpmHibernateConfiguration.getConfigurationProxy().addResource("taskinstance/CustomTaskInstance.hbm.xml");
 
-      JbpmSchema jbpmSchema = new JbpmSchema(configuration);
+      JbpmSchema jbpmSchema = new JbpmSchema(jbpmHibernateConfiguration);
       jbpmSchema.updateTable("JBPM_TASKINSTANCE");
     }
     return jbpmConfiguration;

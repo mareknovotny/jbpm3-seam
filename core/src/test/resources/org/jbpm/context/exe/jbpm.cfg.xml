@@ -9,4 +9,6 @@
     <service name="scheduler" factory="org.jbpm.scheduler.db.DbSchedulerServiceFactory" />
     <service name="tx" factory="org.jbpm.tx.TxServiceFactory" />
   </jbpm-context>
+
+  <string name="resource.hibernate.cfg.xml" value="org/jbpm/context/exe/hibernate.cfg.xml" />
 </jbpm-configuration>

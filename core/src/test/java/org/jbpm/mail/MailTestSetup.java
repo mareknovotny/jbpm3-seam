@@ -30,6 +30,11 @@ public class MailTestSetup extends TestSetup {
 
   private Wiser wiser = new Wiser();
 
+  public MailTestSetup() throws ClassNotFoundException {
+    super(new TestSuite(
+      Class.forName(Thread.currentThread().getStackTrace()[2].getClassName())));
+  }
+
   public MailTestSetup(Class testClass) {
     super(new TestSuite(testClass));
   }

@@ -32,20 +32,16 @@
 
     <!-- Provided Dependencies -->
     <dependency>
-      <groupId>jboss</groupId>
-      <artifactId>jboss-j2ee</artifactId>
-      <scope>provided</scope>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>7.0</version>
+        <scope>provided</scope>
     </dependency>
 
     <!-- Test Dependencies -->
     <dependency>
       <groupId>org.apache.cactus</groupId>
       <artifactId>cactus.core.framework.uberjar.javaEE.14</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.client</groupId>
-      <artifactId>jbossall-client</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -251,7 +247,7 @@
       </build>
     </profile>
 
-    <!-- 
+    <!--
       Name: mysql
       Desc: MySQL test exclusions
     -->

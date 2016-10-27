@@ -147,13 +147,13 @@ public class JobSession {
 
   /**
    * Reattach job originally loaded in a previous session.
-   * 
+   *
    * @param job a detached job
    * @see <a href="http://tinyurl.com/kjss69">Detached objects and automatic versioning</a>
    */
   public void reattachJob(Job job) {
     try {
-      session.lock(job, LockMode.NONE);
+      session.refresh(job, LockMode.NONE);
     }
     catch (HibernateException e) {
       throw new JbpmPersistenceException("could not reattach " + job, e);

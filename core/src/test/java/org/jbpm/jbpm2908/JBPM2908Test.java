@@ -29,22 +29,22 @@ import org.jbpm.graph.exe.ProcessInstance;
 /**
  * Load an alternate {@link JbpmConfiguration} and start a process instance from within an
  * action handler. This test chases a {@link StackOverflowError} or an infinite loop.
- * 
+ *
  * @see <a href="https://jira.jboss.org/jira/browse/JBPM-2908">JBPM-2908</a>
  * @author Toshiya Kobayashi
  */
 public class JBPM2908Test extends AbstractDbTestCase {
 
-  public void testChangingJbpmConfigurationInActionHandler() throws Exception {
-    // deploy definition
-    ProcessDefinition processDefinition1 = ProcessDefinition.parseXmlResource("org/jbpm/jbpm2908/processdefinition1.xml");
-    ProcessDefinition processDefinition2 = ProcessDefinition.parseXmlResource("org/jbpm/jbpm2908/processdefinition2.xml");
-    deployProcessDefinition(processDefinition1);
-    deployProcessDefinition(processDefinition2);
-
-    // start instance
-    ProcessInstance processInstance = jbpmContext.newProcessInstanceForUpdate("process1");
-    processInstance.signal();
-    assert processInstance.hasEnded() : "expected " + processInstance + " to have ended";
-  }
+//  public void testChangingJbpmConfigurationInActionHandler() throws Exception {
+//    // deploy definition
+//    ProcessDefinition processDefinition1 = ProcessDefinition.parseXmlResource("org/jbpm/jbpm2908/processdefinition1.xml");
+//    ProcessDefinition processDefinition2 = ProcessDefinition.parseXmlResource("org/jbpm/jbpm2908/processdefinition2.xml");
+//    deployProcessDefinition(processDefinition1);
+//    deployProcessDefinition(processDefinition2);
+//
+//    // start instance
+//    ProcessInstance processInstance = jbpmContext.newProcessInstanceForUpdate("process1");
+//    processInstance.signal();
+//    assert processInstance.hasEnded() : "expected " + processInstance + " to have ended";
+//  }
 }

@@ -31,18 +31,18 @@ import org.jbpm.util.JndiUtil;
  * The JTA persistence service enables jBPM to participate in JTA transactions. If an existing
  * transaction is underway, {@link JtaDbPersistenceService} clings to it; otherwise it starts a
  * new transaction.
- * 
+ *
  * <h3>Configuration</h3>
- * 
+ *
  * The JTA persistence service factory has the configurable fields described below.
- * 
+ *
  * <ul>
  * <li><code>isCurrentSessionEnabled</code></li>
  * <li><code>isTransactionEnabled</code></li>
  * </ul>
- * 
+ *
  * Refer to the jBPM manual for details.
- * 
+ *
  * @author Tom Baeyens
  * @author Alejandro Guizar
  */
@@ -63,7 +63,7 @@ public class JtaDbPersistenceServiceFactory extends DbPersistenceServiceFactory 
 
   public synchronized UserTransaction getUserTransaction() {
     if (userTransaction == null) {
-      String jndiName = getConfiguration().getProperty("jta.UserTransaction");
+      String jndiName = getJbpmHibernateConfiguration().getConfigurationProxy().getProperty("jta.UserTransaction");
       if (jndiName == null) {
         /*
          * EJB 2.1 section 20.9 The container must make the UserTransaction interface available

@@ -27,14 +27,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-
 import org.jbpm.AbstractJbpmTestCase;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.job.Job;
@@ -106,8 +105,8 @@ public abstract class AbstractDbTestCase extends AbstractJbpmTestCase {
     if (persistenceServiceFactory == null) return;
 
     boolean hasLeftOvers = false;
-    Configuration configuration = persistenceServiceFactory.getConfiguration();
-    JbpmSchema jbpmSchema = new JbpmSchema(configuration);
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = persistenceServiceFactory.getJbpmHibernateConfiguration();
+    JbpmSchema jbpmSchema = new JbpmSchema(jbpmHibernateConfiguration);
 
     for (Iterator i = jbpmSchema.getRowsPerTable().entrySet().iterator(); i.hasNext();) {
       Map.Entry entry = (Map.Entry) i.next();
@@ -125,17 +124,7 @@ public abstract class AbstractDbTestCase extends AbstractJbpmTestCase {
 
   protected String getHibernateDialect() {
     DbPersistenceServiceFactory persistenceServiceFactory = (DbPersistenceServiceFactory) jbpmContext.getServiceFactory(Services.SERVICENAME_PERSISTENCE);
-    return persistenceServiceFactory.getConfiguration().getProperty(Environment.DIALECT);
-  }
-
-  /** @deprecated call {@link #createJbpmContext()} instead */
-  protected void beginSessionTransaction() {
-    createJbpmContext();
-  }
-
-  /** @deprecated call {@link #closeJbpmContext()} instead */
-  protected void commitAndCloseSession() {
-    closeJbpmContext();
+    return persistenceServiceFactory.getJbpmHibernateConfiguration().getConfigurationProxy().getProperty(Environment.DIALECT);
   }
 
   protected void newTransaction() {

@@ -37,8 +37,26 @@ import org.jbpm.svc.Services;
 /**
  * Timer should employ the very calendar that computed the first due date to calculate repeat
  * dates.
- * 
+ *
+ * <blockquote>
+ *   Alejandro Guizar added a comment - 22/Dec/10 7:44 PM
+ *
+ *   <blockquote>
+ *     This update is of interest only to jBPM installations employing multiple business calendar property files AND repeating timers.
+ *     If a timer was set to repeat, the job executor had no indication of what business calendar properties file was in use when the timer was created.
+ *     This update introduces a new column called CALENDARRESOURCE_ to the JBPM_JOB table that store the name of the business calendar properties resource used to create a timer.
+ *   </blockquote>
+ *
+ *   <blockquote>
+ *     To avoid forcing unaffected customers to create the aforementioned column manually, this update is disabled by default.
+ *     In order to enable it, interested customers must replace the mapping resource "org/jbpm/job/Timer.hbm.xml" with "org/jbpm/job/Timer.calendar.hbm.xml" in their Hibernate configuration,
+ *     in addition to creating the column.
+ *   </blockquote>
+ * </blockquote>
+ *
  * @see <a href="https://jira.jboss.org/browse/JBPM-2958">JBPM-2958</a>
+ * @see <a href="https://issues.jboss.org/browse/SOA-2406">SOA-2406</a>
+ * @see <a href="https://bugzilla.redhat.com/show_bug.cgi?id=780043">780043</a>
  * @author Alejandro Guizar
  */
 public class TimerCalendarTest extends AbstractDbTestCase {
@@ -50,7 +68,7 @@ public class TimerCalendarTest extends AbstractDbTestCase {
       JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
       try {
         DbPersistenceServiceFactory persistenceServiceFactory = (DbPersistenceServiceFactory) jbpmContext.getServiceFactory(Services.SERVICENAME_PERSISTENCE);
-        JbpmSchema jbpmSchema = new JbpmSchema(persistenceServiceFactory.getConfiguration());
+        JbpmSchema jbpmSchema = new JbpmSchema(persistenceServiceFactory.getJbpmHibernateConfiguration());
         jbpmSchema.updateTable("JBPM_JOB");
       }
       finally {

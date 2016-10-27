@@ -28,6 +28,7 @@ import javax.sql.DataSource;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.jbpm.AbstractJbpmTestCase;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
@@ -82,7 +83,7 @@ public class PersistenceServiceDbTest extends AbstractJbpmTestCase {
       assertSame(session, persistenceService.session);
       assertNull(persistenceService.connection);
 
-      assertNotNull(persistenceServiceFactory.getConfiguration());
+      assertNotNull(persistenceServiceFactory.getJbpmHibernateConfiguration());
       assertNotNull(persistenceServiceFactory.getSessionFactory());
       assertNotNull(persistenceService.transaction);
       assertNull(persistenceService.connection);
@@ -97,21 +98,17 @@ public class PersistenceServiceDbTest extends AbstractJbpmTestCase {
       assertNull(persistenceService.jobSession);
       assertNull(persistenceService.taskMgmtSession);
 
-      assertTrue(persistenceService.transaction.isActive());
+      assertTrue(TransactionStatus.ACTIVE == persistenceService.transaction.getStatus());
       assertTrue(persistenceService.session.isOpen());
-      assertFalse(persistenceService.transaction.wasCommitted());
-      assertFalse(persistenceService.transaction.wasRolledBack());
     }
     finally {
       jbpmContext.close();
     }
 
-    assertNotNull(persistenceServiceFactory.getConfiguration());
+    assertNotNull(persistenceServiceFactory.getJbpmHibernateConfiguration());
     assertNotNull(persistenceServiceFactory.getSessionFactory());
 
-    assertTrue(persistenceService.transaction.wasCommitted());
-    assertFalse(persistenceService.transaction.isActive());
-    assertFalse(persistenceService.transaction.wasRolledBack());
+    assertTrue(TransactionStatus.COMMITTED == persistenceService.transaction.getStatus());
     assertFalse(persistenceService.session.isOpen());
     assertFalse(persistenceService.session.isConnected());
   }
@@ -147,9 +144,7 @@ public class PersistenceServiceDbTest extends AbstractJbpmTestCase {
       jbpmContext.close();
     }
 
-    assertFalse(persistenceService.transaction.wasCommitted());
-    assertFalse(persistenceService.transaction.isActive());
-    assertTrue(persistenceService.transaction.wasRolledBack());
+    assertTrue(TransactionStatus.ROLLED_BACK == persistenceService.transaction.getStatus());
     assertFalse(persistenceService.session.isOpen());
   }
 
@@ -157,9 +152,10 @@ public class PersistenceServiceDbTest extends AbstractJbpmTestCase {
     JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
     Recorded recordedConnection;
 
+    DbPersistenceService persistenceService = (DbPersistenceService) jbpmContext.getServices()
+            .getPersistenceService();
+
     try {
-      DbPersistenceService persistenceService = (DbPersistenceService) jbpmContext.getServices()
-        .getPersistenceService();
 
       DataSource dataSource = Jdbc.createRecordedDataSource();
       Connection connection = dataSource.getConnection();
@@ -170,25 +166,30 @@ public class PersistenceServiceDbTest extends AbstractJbpmTestCase {
       assertNotNull(persistenceService.transaction);
       assertSame(session, persistenceService.session);
       recordedConnection = (Recorded) connection;
+
       List invocations = recordedConnection.getInvocations();
       assertNull(Invocation.getInvocation(invocations, "commit", 0));
+      assertTrue(TransactionStatus.ACTIVE == persistenceService.transaction.getStatus());
+      assertTrue(persistenceService.session.isOpen());
     }
     finally {
       jbpmContext.close();
     }
 
     List invocations = recordedConnection.getInvocations();
-    assertNotNull(Invocation.getInvocation(invocations, "commit", 0));
+    assertNull(Invocation.getInvocation(invocations, "commit", 0));
     assertNull(Invocation.getInvocation(invocations, "close", 0));
+    assertTrue(TransactionStatus.COMMITTED == persistenceService.transaction.getStatus());
+    assertFalse(persistenceService.session.isOpen());
   }
 
   public void testUserSuppliedConnectionWithRollback() throws Exception {
     JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
     Recorded recordedConnection;
 
+    DbPersistenceService persistenceService = (DbPersistenceService) jbpmContext.getServices()
+            .getPersistenceService();
     try {
-      DbPersistenceService persistenceService = (DbPersistenceService) jbpmContext.getServices()
-        .getPersistenceService();
 
       DataSource dataSource = Jdbc.createRecordedDataSource();
       Connection connection = dataSource.getConnection();
@@ -200,9 +201,13 @@ public class PersistenceServiceDbTest extends AbstractJbpmTestCase {
       assertNotNull(persistenceService.transaction);
       assertSame(session, persistenceService.session);
       recordedConnection = (Recorded) connection;
+
       List invocations = recordedConnection.getInvocations();
       assertNull(Invocation.getInvocation(invocations, "commit", 0));
       assertNull(Invocation.getInvocation(invocations, "rollback", 0));
+      assertNull(Invocation.getInvocation(invocations, "close", 0));
+      assertTrue(TransactionStatus.ACTIVE == persistenceService.transaction.getStatus());
+      assertTrue(persistenceService.session.isOpen());
     }
     finally {
       jbpmContext.close();
@@ -210,7 +215,9 @@ public class PersistenceServiceDbTest extends AbstractJbpmTestCase {
 
     List invocations = recordedConnection.getInvocations();
     assertNull(Invocation.getInvocation(invocations, "commit", 0));
-    assertNotNull(Invocation.getInvocation(invocations, "rollback", 0));
+    assertNull(Invocation.getInvocation(invocations, "rollback", 0));
+    assertTrue(TransactionStatus.ROLLED_BACK == persistenceService.transaction.getStatus());
+    assertFalse(persistenceService.session.isOpen());
   }
 
   public void testUserSuppliedSession() throws Exception {

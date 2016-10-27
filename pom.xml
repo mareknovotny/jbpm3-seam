@@ -13,7 +13,7 @@
   <groupId>org.jbpm.jbpm3</groupId>
   <artifactId>jbpm</artifactId>
   <packaging>pom</packaging>
-  <version>3.2.10.SP3_seam2</version>
+  <version>3.2.10.SP3_seam2_hibernate5</version>
 
   <!-- Source Control Management -->
   <scm>
@@ -41,22 +41,27 @@
 
   <!-- Properties -->
   <properties>
-    <maven.compiler.source>1.5</maven.compiler.source>
-    <maven.compiler.target>1.5</maven.compiler.target>
+
+    <!-- Hibernate 5.2 and later versions require at least Java 1.8 and JDBC 4.2. -->
+    <!-- Hibernate 5.1 and older versions require at least Java 1.6 and JDBC 4.0. -->
+    <!-- When building Hibernate 5.1 or older from sources, you need Java 1.7 due to a bug in the JDK 1.6 compiler. -->
+
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
 
     <!-- Dependency versions -->
     <cargo.version>1.0.3</cargo.version>
     <jsf.console.version>3.2.10</jsf.console.version>
 
     <!-- Database Driver Versions  -->
-    <db2jcc.version>3.1.57</db2jcc.version>
-    <hsqldb.version>1.8.0.10</hsqldb.version>
+    <db2jcc.version>3.8.88</db2jcc.version>
+    <hsqldb.version>2.3.4</hsqldb.version>
     <jconnect.version>6.0.5</jconnect.version>
     <jtds.version>1.2.2</jtds.version>
     <msjdbc.version>1.2.2828.100</msjdbc.version>
-    <mysql.connector.version>5.0.7</mysql.connector.version>
+    <mysql.connector.version>5.0.8</mysql.connector.version>
     <ojdbc.version>10.2.0.4</ojdbc.version>
-    <postgresql.version>8.2-504.jdbc3</postgresql.version>
+    <postgresql.version>8.3-603.jdbc3</postgresql.version>
 
     <!-- Plugin versions -->
     <version.javadoc.plugin>2.7</version.javadoc.plugin>
@@ -208,18 +213,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
-        <version>4.1.0.Final</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.cluster</groupId>
-        <artifactId>hibernate-jbc-cacheprovider</artifactId>
-        <version>1.0.2.GA</version>
-        <exclusions>
-          <exclusion>
-            <groupId>hibernate</groupId>
-            <artifactId>hibernate3</artifactId>
-          </exclusion>
-        </exclusions>
+        <version>5.0.10.Final</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.izpack</groupId>
@@ -276,16 +270,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.jboss.client</groupId>
-        <artifactId>jbossall-client</artifactId>
-        <version>4.0.5.GA</version>
-      </dependency>
-      <dependency>
-        <groupId>jboss</groupId>
-        <artifactId>jboss-j2ee</artifactId>
-        <version>4.0.2</version>
-      </dependency>
-      <dependency>
         <groupId>javax.jcr</groupId>
         <artifactId>jcr</artifactId>
         <version>1.0</version>
@@ -295,6 +279,11 @@
         <artifactId>jta</artifactId>
         <version>1.1</version>
       </dependency>
+<!--       <dependency> -->
+<!--         <groupId>org.jboss.spec.javax.transaction</groupId> -->
+<!--         <artifactId>jboss-transaction-api_1.2_spec</artifactId> -->
+<!--         <version>1.0.0.Final</version> -->
+<!--       </dependency> -->
       <dependency>
         <groupId>com.sun.facelets</groupId>
         <artifactId>jsf-facelets</artifactId>
@@ -327,20 +316,18 @@
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.4</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
       </dependency>
       <dependency>
         <groupId>org.subethamail</groupId>
         <artifactId>subethasmtp-smtp</artifactId>
         <version>1.2</version>
-        <classifier>java14</classifier>
       </dependency>
       <dependency>
         <groupId>org.subethamail</groupId>
         <artifactId>subethasmtp-wiser</artifactId>
         <version>1.2</version>
-        <classifier>java14</classifier>
         <exclusions>
           <exclusion>
             <groupId>org.subethamail</groupId>
@@ -361,7 +348,7 @@
         <version>${db2jcc.version}</version>
       </dependency>
       <dependency>
-        <groupId>hsqldb</groupId>
+        <groupId>org.hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
         <version>${hsqldb.version}</version>
       </dependency>
@@ -411,50 +398,62 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>org.hibernate</groupId>
-    	<artifactId>hibernate-ehcache</artifactId>
-    	<version>4.1.0.Final</version>
-    	<exclusions>
-    		<exclusion>
-    			<artifactId>slf4j-api</artifactId>
-    			<groupId>org.slf4j</groupId>
-    		</exclusion>
-    	</exclusions>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-ehcache</artifactId>
+        <version>5.0.10.Final</version>
+        <exclusions>
+            <exclusion>
+                <artifactId>slf4j-api</artifactId>
+                <groupId>org.slf4j</groupId>
+            </exclusion>
+            <exclusion>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
-    	<groupId>org.slf4j</groupId>
-    	<artifactId>slf4j-log4j12</artifactId>
-    	<version>1.6.1</version>
-    	<exclusions>
-    		<exclusion>
-    			<artifactId>slf4j-api</artifactId>
-    			<groupId>org.slf4j</groupId>
-    		</exclusion>
-    	</exclusions>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-core</artifactId>
+        <version>2.4.8</version>
     </dependency>
     <dependency>
-    	<groupId>org.apache.jackrabbit</groupId>
-    	<artifactId>jackrabbit-core</artifactId>
-    	<exclusions>
-    		<exclusion>
-    			<artifactId>slf4j-api</artifactId>
-    			<groupId>org.slf4j</groupId>
-    		</exclusion>
-    	</exclusions>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>1.6.1</version>
+        <exclusions>
+            <exclusion>
+                <artifactId>slf4j-api</artifactId>
+                <groupId>org.slf4j</groupId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.jackrabbit</groupId>
+        <artifactId>jackrabbit-core</artifactId>
+        <exclusions>
+            <exclusion>
+                <artifactId>slf4j-api</artifactId>
+                <groupId>org.slf4j</groupId>
+            </exclusion>
+        </exclusions>
     </dependency>
   </dependencies>
 
   <!-- Plugins -->
   <build>
     <plugins>
+      <!-- Disable Java 8 doclint -->
       <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <quiet>true</quiet>
-          <docfilessubdirs>true</docfilessubdirs>
-          <detectOfflineLinks>false</detectOfflineLinks>
-        </configuration>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <configuration>
+              <source>${maven.compiler.source}</source>
+              <quiet>true</quiet>
+              <docfilessubdirs>true</docfilessubdirs>
+              <detectOfflineLinks>false</detectOfflineLinks>
+              <additionalparam>-Xdoclint:none</additionalparam>
+          </configuration>
       </plugin>
 
       <plugin>
@@ -497,7 +496,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>sql-maven-plugin</artifactId>
-          <version>1.4</version>
+          <version>1.5</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -633,11 +632,11 @@
         <jdbc.hsqldb.url>jdbc:hsqldb:mem:${jdbc.hsqldb.database}</jdbc.hsqldb.url>
         <jdbc.hsqldb.username>sa</jdbc.hsqldb.username>
         <jdbc.hsqldb.password />
-        <jdbc.hsqldb.driver>org.hsqldb.jdbcDriver</jdbc.hsqldb.driver>
+        <jdbc.hsqldb.driver>org.hsqldb.jdbc.JDBCDriver</jdbc.hsqldb.driver>
       </properties>
       <dependencies>
         <dependency>
-          <groupId>hsqldb</groupId>
+          <groupId>org.hsqldb</groupId>
           <artifactId>hsqldb</artifactId>
           <scope>test</scope>
         </dependency>
@@ -693,11 +692,11 @@
         <jdbc.hsqldb.url>jdbc:hsqldb:mem:${jdbc.hsqldb.database}</jdbc.hsqldb.url>
         <jdbc.hsqldb.username>sa</jdbc.hsqldb.username>
         <jdbc.hsqldb.password />
-        <jdbc.hsqldb.driver>org.hsqldb.jdbcDriver</jdbc.hsqldb.driver>
+        <jdbc.hsqldb.driver>org.hsqldb.jdbc.JDBCDriver</jdbc.hsqldb.driver>
       </properties>
       <dependencies>
         <dependency>
-          <groupId>hsqldb</groupId>
+          <groupId>org.hsqldb</groupId>
           <artifactId>hsqldb</artifactId>
           <scope>test</scope>
         </dependency>
@@ -752,7 +751,7 @@
       </dependencies>
     </profile>
 
-    <!-- 
+    <!--
       Name: oracle
       Desc: Oracle Database Setup
     -->

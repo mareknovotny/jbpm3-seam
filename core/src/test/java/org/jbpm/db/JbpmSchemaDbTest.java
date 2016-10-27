@@ -25,13 +25,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.cfg.Configuration;
-
 import org.jbpm.AbstractJbpmTestCase;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 
 /**
  * Test the JbpmSchema utility
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 06-Nov-2008
  */
@@ -41,7 +40,9 @@ public class JbpmSchemaDbTest extends AbstractJbpmTestCase {
 
   protected void setUp() throws Exception {
     super.setUp();
-    jbpmSchema = new JbpmSchema(new Configuration().configure());
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = new JbpmHibernateConfiguration();
+    jbpmHibernateConfiguration.getConfigurationProxy().configure();
+    jbpmSchema = new JbpmSchema(jbpmHibernateConfiguration);
   }
 
   public void testCreateSchema() {
@@ -59,7 +60,7 @@ public class JbpmSchemaDbTest extends AbstractJbpmTestCase {
     }
   }
 
-  public void testCleanSchema() {
+  public void testCleanSchema() throws InterruptedException {
     jbpmSchema.cleanSchema();
     Map rowsPerTable = jbpmSchema.getRowsPerTable();
     Set existingTables = jbpmSchema.getExistingTables();

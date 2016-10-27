@@ -25,62 +25,59 @@ import java.sql.Connection;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.identity.Group;
 import org.jbpm.identity.Membership;
 import org.jbpm.identity.User;
 
 public class IdentitySessionFactory {
 
-  protected Configuration configuration;
+  protected JbpmHibernateConfiguration jbpmHibernateConfiguration;
   protected SessionFactory sessionFactory;
 
   public IdentitySessionFactory() {
     this(createConfiguration());
   }
 
-  public IdentitySessionFactory(Configuration configuration) {
-    this(configuration, configuration.buildSessionFactory());
+  public IdentitySessionFactory(JbpmHibernateConfiguration jbpmHibernateConfiguration) {
+    this(jbpmHibernateConfiguration, jbpmHibernateConfiguration.getConfigurationProxy().buildSessionFactory());
   }
 
-  public IdentitySessionFactory(Configuration configuration, SessionFactory sessionFactory) {
-    this.configuration = configuration;
+  public IdentitySessionFactory(JbpmHibernateConfiguration jbpmHibernateConfiguration, SessionFactory sessionFactory) {
+    this.jbpmHibernateConfiguration = jbpmHibernateConfiguration;
     this.sessionFactory = sessionFactory;
   }
 
-  public static Configuration createConfiguration() {
+  public static JbpmHibernateConfiguration createConfiguration() {
     return createConfiguration(null);
   }
 
-  public static Configuration createConfiguration(String resource) {
-    Configuration configuration = null;
-    // create the hibernate configuration
-    configuration = new Configuration();
+  public static JbpmHibernateConfiguration createConfiguration(String resource) {
 
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = new JbpmHibernateConfiguration();
+    Configuration configuration = jbpmHibernateConfiguration.getConfigurationProxy();
     if (resource != null) {
       configuration.configure(resource);
     }
     else {
       configuration.configure();
     }
-    return configuration;
+
+    return jbpmHibernateConfiguration;
   }
 
   public IdentitySession openIdentitySession() {
     return new IdentitySession(sessionFactory.openSession());
   }
 
-  public IdentitySession openIdentitySession(Connection connection) {
-    return openIdentitySession();
-  }
-
   public void evictCachedIdentities() {
-    sessionFactory.evict(User.class);
-    sessionFactory.evict(Membership.class);
-    sessionFactory.evict(Group.class);
+    sessionFactory.getCache().evictEntityRegion(User.class);
+    sessionFactory.getCache().evictEntityRegion(Membership.class);
+    sessionFactory.getCache().evictEntityRegion(Group.class);
   }
 
-  public Configuration getConfiguration() {
-    return configuration;
+  public JbpmHibernateConfiguration getJbpmHibernateConfiguration() {
+    return jbpmHibernateConfiguration;
   }
 
   public SessionFactory getSessionFactory() {

@@ -15,16 +15,16 @@
     <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/sim_tutorial2</property>
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">root</property>
-        
-<!--     
+
+<!--
     <property name="hibernate.dialect">com.camunda.commons.hibernate.HSQLStddevDialect</property>
 
-    <property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
-    <property name="hibernate.connection.url">jdbc:hsqldb:mem:jbpm</property> 
+    <property name="hibernate.connection.driver_class">org.hsqldb.jdbc.JDBCDriver</property>
+    <property name="hibernate.connection.url">jdbc:hsqldb:mem:jbpm</property>
     <property name="hibernate.connection.username">sa</property>
     <property name="hibernate.connection.password"></property>
 -->
-    <property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
+    <property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
 
     <property name="hibernate.bytecode.provider">cglib</property>
 
@@ -33,8 +33,8 @@
     <property name="hibernate.format_sql">true</property>
     <property name="hibernate.use_sql_comments">false</property>
 -->
-    
-<!--    <property name="hibernate.hbm2ddl.auto">update</property> 
+
+<!--    <property name="hibernate.hbm2ddl.auto">update</property>
     <property name="hibernate.connection.autocommit">false</property> -->
 
    <!-- ############################################ -->
@@ -55,7 +55,7 @@
     <!-- hql queries and type defs -->
     <mapping resource="org/jbpm/db/hibernate.queries.hbm.xml" />
     <mapping resource="org/jbpm/sim/bam/hibernate.mysql.queries.hbm.xml" />
-        
+
     <!-- graph.def mapping files -->
     <mapping resource="org/jbpm/graph/def/ProcessDefinition.hbm.xml"/>
     <mapping resource="org/jbpm/graph/def/Node.hbm.xml"/>
@@ -107,7 +107,7 @@
 
     <!-- module.exe mapping files -->
     <mapping resource="org/jbpm/module/exe/ModuleInstance.hbm.xml"/>
-        
+
     <!-- context.exe mapping files -->
     <mapping resource="org/jbpm/context/exe/ContextInstance.hbm.xml"/>
     <mapping resource="org/jbpm/context/exe/TokenVariableMap.hbm.xml"/>
@@ -164,6 +164,6 @@
     <mapping resource="org/jbpm/taskmgmt/log/SwimlaneLog.hbm.xml"/>
     <mapping resource="org/jbpm/taskmgmt/log/SwimlaneCreateLog.hbm.xml"/>
     <mapping resource="org/jbpm/taskmgmt/log/SwimlaneAssignLog.hbm.xml"/>
-    
+
   </session-factory>
 </hibernate-configuration>
