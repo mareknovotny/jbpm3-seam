@@ -1,0 +1,23 @@
+<project name="patchname" default="apply.patch">
+	<!-- change logo and make style unify with soa platform -->
+  <property name="gpd_war_dir" location="${module_base_dir}/target/work/gpd-war" />
+
+	<target name="apply.patch">
+		<delete file="${gpd_war_dir}/jbpm.css" />
+		<replace file="${gpd_war_dir}/index.html" >
+			<replacetoken><![CDATA[jbpm.css]]></replacetoken>
+			<replacevalue><![CDATA[/css/soa.css]]></replacevalue>
+		</replace>
+		<replace file="${gpd_war_dir}/index.html" >
+			<replacetoken><![CDATA[<body>]]></replacetoken>
+			<replacevalue><![CDATA[<body><script language="javascript" type="text/javascript" src="/css/header.js" ></script>]]></replacevalue>
+		</replace>
+		<replace file="${gpd_war_dir}/index.html" >
+			<replacetoken><![CDATA[</body>]]></replacetoken>
+			<replacevalue><![CDATA[</body><script language="javascript" type="text/javascript" src="/css/footer.js" ></script>]]></replacevalue>
+		</replace>
+
+		<delete file="${gpd_war_dir}/WEB-INF/jboss-web.xml" />
+    <copy todir="${gpd_war_dir}/WEB-INF" file="${module_base_dir}/resource/gpd-console/jboss-web.xml" />
+	</target>
+</project>
