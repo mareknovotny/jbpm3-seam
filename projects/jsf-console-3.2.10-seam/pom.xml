@@ -13,7 +13,7 @@
   <groupId>org.jbpm.jbpm3</groupId>
   <artifactId>jsf-console-parent</artifactId>
   <packaging>pom</packaging>
-  <version>3.2.10.seam2_hibernate5</version>
+  <version>3.2.10-1-seam2_hibernate5-SNAPSHOT</version>
 
   <!-- Source Control Management -->
   <scm>
@@ -44,7 +44,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
 
     <!-- Dependency versions -->
-    <jbpm.version>3.2.10.SP3_seam2_hibernate5</jbpm.version>
+    <jbpm.version>3.2.10-1-SP3_seam2_hibernate5-SNAPSHOT</jbpm.version>
   </properties>
 
   <!-- DependencyManagement -->
