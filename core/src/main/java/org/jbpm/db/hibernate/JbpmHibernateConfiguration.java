@@ -1,6 +1,3 @@
-/**
- * Copyright (c) 2016 Impact Mobile Inc.
- */
 package org.jbpm.db.hibernate;
 
 import java.io.Serializable;
