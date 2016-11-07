@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.jbpm.jbpm3</groupId>
     <artifactId>jsf-console-parent</artifactId>
-    <version>3.2.10</version>
+    <version>3.2.10.seam2_hibernate5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -33,4 +33,5 @@
 
     <!-- Provided Dependencies -->
   </dependencies>
+
 </project>

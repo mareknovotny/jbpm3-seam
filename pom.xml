@@ -51,7 +51,7 @@
 
     <!-- Dependency versions -->
     <cargo.version>1.0.3</cargo.version>
-    <jsf.console.version>3.2.10</jsf.console.version>
+    <jsf.console.version>3.2.10.seam2_hibernate5</jsf.console.version>
 
     <!-- Database Driver Versions  -->
     <db2jcc.version>3.8.88</db2jcc.version>

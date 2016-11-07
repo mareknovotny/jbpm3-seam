@@ -17,7 +17,7 @@
   <parent>
     <artifactId>jsf-console-parent</artifactId>
     <groupId>org.jbpm.jbpm3</groupId>
-    <version>3.2.10</version>
+    <version>3.2.10.seam2_hibernate5</version>
   </parent>
 
   <dependencies>
@@ -31,12 +31,14 @@
 
     <!-- Thirdparty Dependencies -->
     <dependency>
-      <groupId>javax.faces</groupId>
-      <artifactId>jsf-api</artifactId>
+      <groupId>org.jboss.spec.javax.faces</groupId>
+      <artifactId>jboss-jsf-api_2.2_spec</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.faces</groupId>
-      <artifactId>jsf-impl</artifactId>
-    </dependency>
+        <groupId>com.sun.faces</groupId>
+        <artifactId>jsf-impl</artifactId>
+        <optional>true</optional>
+      </dependency>
   </dependencies>
+
 </project>

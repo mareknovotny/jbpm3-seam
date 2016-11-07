@@ -13,7 +13,7 @@
   <groupId>org.jbpm.jbpm3</groupId>
   <artifactId>jsf-console-parent</artifactId>
   <packaging>pom</packaging>
-  <version>3.2.10</version>
+  <version>3.2.10.seam2_hibernate5</version>
 
   <!-- Source Control Management -->
   <scm>
@@ -40,12 +40,11 @@
 
   <!-- Properties -->
   <properties>
-    <maven.compiler.target>1.4</maven.compiler.target>
-    <maven.compiler.source>1.4</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
 
     <!-- Dependency versions -->
-    <javax.faces.version>1.2_13</javax.faces.version>
-    <jbpm.version>3.2.9</jbpm.version>
+    <jbpm.version>3.2.10.SP3_seam2_hibernate5</jbpm.version>
   </properties>
 
   <!-- DependencyManagement -->
@@ -90,19 +89,20 @@
         <version>1.0</version>
       </dependency>
       <dependency>
-        <groupId>javax.faces</groupId>
-        <artifactId>jsf-api</artifactId>
-        <version>${javax.faces.version}</version>
+        <groupId>org.jboss.spec.javax.faces</groupId>
+        <artifactId>jboss-jsf-api_2.2_spec</artifactId>
+        <version>2.2.13</version>
       </dependency>
       <dependency>
-        <groupId>javax.faces</groupId>
+        <groupId>com.sun.faces</groupId>
         <artifactId>jsf-impl</artifactId>
-        <version>${javax.faces.version}</version>
+        <version>2.2.13</version>
+        <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.5</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.gravel</groupId>
@@ -115,6 +115,10 @@
   <!-- Plugins -->
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.5</version>
+      </plugin>
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
