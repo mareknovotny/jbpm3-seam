@@ -34,6 +34,7 @@ public abstract class AbstractJbpmTestCase extends TestCase {
 
   protected void setUp() throws Exception {
     log.info("### START " + getName() + " ####################");
+    System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
   }
 
   protected void tearDown() throws Exception {

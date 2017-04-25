@@ -29,7 +29,13 @@ import org.jbpm.graph.exe.ProcessInstance;
 /**
  * Load an alternate {@link JbpmConfiguration} and start a process instance from within an
  * action handler. This test chases a {@link StackOverflowError} or an infinite loop.
- * 
+ *
+ * <blockquote><pre>
+ *   To quote directly from the related jira issue:
+ *
+ *   "This test ignores lots of JbpmPersisteceException... So it may not be a valid test case, but is useful for understanding the issue."
+ * </pre></blockquote>
+ *
  * @see <a href="https://jira.jboss.org/jira/browse/JBPM-2908">JBPM-2908</a>
  * @author Toshiya Kobayashi
  */

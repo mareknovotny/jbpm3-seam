@@ -23,14 +23,14 @@ package org.jbpm.ant;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
-import org.hibernate.cfg.Configuration;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 
 /**
  * @author Alejandro Guizar
@@ -45,8 +45,8 @@ public class HibernatePropertiesTask extends Task {
   public void execute() throws BuildException {
     log("loading hibernate properties from " + config);
 
-    Configuration configuration = AntHelper.getConfiguration(config, null);
-    Properties properties = configuration.getProperties();
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = AntHelper.getConfiguration(config, null);
+    Properties properties = jbpmHibernateConfiguration.getConfigurationProxy().getProperties();
     if (properties.isEmpty()) return;
 
     StringBuffer nameBuf = new StringBuffer(prefix);

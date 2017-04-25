@@ -136,7 +136,7 @@ public abstract class AbstractEnterpriseTestCase extends ServletTestCase {
 
       public Object execute(JbpmContext jbpmContext) throws Exception {
         DbPersistenceServiceFactory factory = (DbPersistenceServiceFactory) jbpmContext.getServiceFactory(Services.SERVICENAME_PERSISTENCE);
-        return factory.getConfiguration().getProperty(Environment.DIALECT);
+        return factory.getJbpmHibernateConfiguration().getConfigurationProxy().getProperty(Environment.DIALECT);
       }
     });
   }

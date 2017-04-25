@@ -1,0 +1,63 @@
+<project name="patchname" default="apply.patch">
+	<!-- change logo and make style unify with soa platform -->
+	<target name="apply.patch">
+    <replace file="${module_base_dir}/target/work/console-war/login.jsp" >
+      <replacetoken><![CDATA[<a href="/"><img src="/jbpm-console/JBossLogo.jpg" alt="JBoss SOA Platform"/></a>
+]]></replacetoken>
+      <replacevalue></replacevalue>
+		</replace>
+    <replace file="${module_base_dir}/target/work/console-war/login.jsp" >
+      <replacetoken><![CDATA[</head>]]></replacetoken>
+      <replacevalue><![CDATA[<link href="/css/soa.css" rel="stylesheet" type="text/css"/>
+      </head>]]></replacevalue>
+    </replace>  
+
+		<replace file="${module_base_dir}/target/work/console-war/login.jsp">
+		      <replacetoken><![CDATA[<body>]]></replacetoken>
+		      <replacevalue><![CDATA[<body><script language="javascript" type="text/javascript" src="/css/header.js" ></script>]]>
+		      </replacevalue>
+		    </replace>
+		    <replace file="${module_base_dir}/target/work/console-war/login.jsp">
+		      <replacetoken><![CDATA[</body>]]></replacetoken>
+		      <replacevalue><![CDATA[<script language="javascript" type="text/javascript" src="/css/footer.js" ></script></body>]]>
+		      </replacevalue>
+		</replace>
+		
+		<replace file="${module_base_dir}/target/work/console-war/login.jsp">
+		      <replacetoken><![CDATA[background: #ff8c00;]]></replacetoken>
+		      <replacevalue><![CDATA[background: #cc0000; color: white;]]></replacevalue>
+		</replace>
+		<replace file="${module_base_dir}/target/work/console-war/login.jsp">
+		      <replacetoken><![CDATA[Invalid Login/Password]]></replacetoken>
+		      <replacevalue><![CDATA[Invalid User Name/Password]]></replacevalue>
+		</replace>
+		<replace file="${module_base_dir}/target/work/console-war/login.jsp">
+		      <replacetoken><![CDATA[background-color: gainsboro;]]></replacetoken>
+		      <replacevalue><![CDATA[background-color: #cccccc;]]></replacevalue>
+		</replace>
+
+    <replace file="${module_base_dir}/target/work/console-war/ua/t_base.xhtml" >
+      <replacetoken><![CDATA[</head>]]></replacetoken>
+      <replacevalue><![CDATA[<link href="/css/soa.css" rel="stylesheet" type="text/css"/>
+      </head>]]></replacevalue>
+    </replace>
+		
+		<replace file="${module_base_dir}/target/work/console-war/ua/t_base.xhtml" >
+      <replacetoken><![CDATA[<ui:insert name="top"/>
+                <img src="../images/background.gif" alt=""/>]]></replacetoken>
+      <replacevalue><![CDATA[<script language="javascript" type="text/javascript" src="/css/header.js" ></script>
+      	<ui:insert name="top"/>]]></replacevalue>
+		</replace>
+    <replace file="${module_base_dir}/target/work/console-war/ua/t_base.xhtml" >
+      <replacetoken><![CDATA[<tr>
+                <td colspan="2" class="layoutfooter"><h:outputText value="#{msgs['title']}"/></td>
+            </tr>
+        </tbody>
+    </table>
+]]></replacetoken>
+      <replacevalue><![CDATA[</tbody>
+        </table>
+      	<script language="javascript" type="text/javascript" src="/css/footer.js" ></script>]]></replacevalue>
+		</replace>
+	</target>
+</project>

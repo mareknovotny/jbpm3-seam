@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!--  jBPM: Workflow in Java                                                -->
+<!--                                                                        -->
+<!--  Distributable under LGPL license.                                     -->
+<!--  See terms of license at http://www.gnu.org.                           -->
+<!-- ====================================================================== -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>jBPM3 - SOA Console</name>
+  <groupId>org.jbpm.jbpm3</groupId>
+  <artifactId>jsf-console-soa-distribution</artifactId>
+  <packaging>pom</packaging>
+
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jbpm.jbpm3</groupId>
+    <artifactId>jsf-console-parent</artifactId>
+    <version>3.2.10-1-seam2_hibernate5-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <properties> 
+    <soa_common_build_src.groupId>org.jboss.jbosssoa</soa_common_build_src.groupId>
+    <soa_common_build_src.artifactId>soa-common-build-src</soa_common_build_src.artifactId>
+    <soa_common_build_src.version>1.0.0</soa_common_build_src.version>
+  </properties>
+
+  <dependencies>
+      <dependency>
+      <groupId>${soa_common_build_src.groupId}</groupId>
+      <artifactId>${soa_common_build_src.artifactId}</artifactId>
+      <version>${soa_common_build_src.version}</version>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm.jbpm3</groupId>
+      <artifactId>jsf-console</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm.jbpm3</groupId>
+      <artifactId>gpd-deployer</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+  </dependencies>
+
+   <!-- Plugins -->
+  <build>
+     <plugins>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-dependency-plugin</artifactId>
+         <executions>
+           <execution>
+             <id>unpack-soa-common-build-src</id>
+             <phase>process-resources</phase>
+             <goals>
+               <goal>unpack</goal>
+             </goals>
+             <configuration>
+               <outputDirectory>${project.basedir}</outputDirectory>
+               <artifactItems>
+                 <artifactItem>
+                   <groupId>${soa_common_build_src.groupId}</groupId>
+                   <artifactId>${soa_common_build_src.artifactId}</artifactId>
+                   <version>${soa_common_build_src.version}</version>
+                   <type>zip</type>
+                 </artifactItem>
+               </artifactItems>
+             </configuration>
+           </execution>
+           <execution>
+             <id>unpack-jsf-console</id>
+             <phase>process-resources</phase>
+             <goals>
+               <goal>unpack</goal>
+             </goals>
+             <configuration>
+               <outputDirectory>${project.build.directory}/work/console-war</outputDirectory>
+               <artifactItems>
+                 <artifactItem>
+                   <groupId>org.jbpm.jbpm3</groupId>
+                   <artifactId>jsf-console</artifactId>
+                   <type>war</type>
+                 </artifactItem>
+               </artifactItems>
+             </configuration>
+           </execution>
+           <execution>
+             <id>unpack-gpd-deployer</id>
+             <phase>process-resources</phase>
+             <goals>
+               <goal>unpack</goal>
+             </goals>
+             <configuration>
+               <outputDirectory>${project.build.directory}/work/gpd-war</outputDirectory>
+               <artifactItems>
+                 <artifactItem>
+                   <groupId>org.jbpm.jbpm3</groupId>
+                   <artifactId>gpd-deployer</artifactId>
+                   <type>war</type>
+                 </artifactItem>
+               </artifactItems>
+             </configuration>
+           </execution>
+         </executions>
+       </plugin>
+
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.3</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.7.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-nodeps</artifactId>
+            <version>1.7.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-launcher</artifactId>
+            <version>1.7.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-trax</artifactId>
+            <version>1.7.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>1.7.0</version>
+          </dependency>
+        </dependencies>
+
+        <executions>
+            <execution>
+              <id>SOA build process</id>
+              <phase>process-classes</phase>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <tasks>
+                  <ant antfile="build-common.xml" target="soa.routine.build" dir="${project.basedir}" inheritAll="false">
+                    <property name="module_base_dir" value="${project.basedir}"/>
+                    <property name="module_build_finalName" value="${project.build.finalName}"/>
+                    <property name="project.version" value="${project.version}"/>
+                    <property name="groovy.path" value="${maven.dependency.org.codehaus.groovy.groovy-all.jar.path}" />
+                  </ant>
+                </tasks>
+              </configuration>
+            </execution>
+          </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+              <execution>
+                  <phase>package</phase>
+                  <goals>
+                    <goal>attach-artifact</goal>
+                  </goals>
+                <configuration>
+                  <artifacts>
+                    <artifact>
+                      <file>${project.build.directory}/${project.build.finalName}.zip</file>
+                      <type>zip</type>
+                    </artifact>
+                    <artifact>
+                      <file>${project.build.directory}/${project.build.finalName}.war</file>
+                      <type>war</type>
+                    </artifact>
+                  </artifacts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+    </plugins>
+  </build>
+</project>

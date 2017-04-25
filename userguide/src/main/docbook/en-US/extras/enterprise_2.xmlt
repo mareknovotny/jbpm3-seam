@@ -3,8 +3,8 @@
     org.hibernate.dialect.HSQLDialect
 </property>
 
-<property name="hibernate.cache.provider_class">
-  org.hibernate.cache.HashtableCacheProvider
+<property name="hibernate.cache.region.factory_class">
+  org.hibernate.cache.ehcache.EhCacheRegionFactory
 </property>
 
 <!-- DataSource properties (begin) -->

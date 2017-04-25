@@ -28,7 +28,6 @@ import java.sql.SQLException;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import javax.imageio.spi.ServiceRegistry;
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -42,7 +41,7 @@ import org.hibernate.Transaction;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.exception.LockAcquisitionException;
-
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.jbpm.JbpmContext;
 import org.jbpm.JbpmException;
 import org.jbpm.db.ContextSession;
@@ -106,7 +105,7 @@ public class DbPersistenceService implements PersistenceService {
         mustSessionBeClosed = false;
       }
       else {
-    	session = sessionFactory.openSession();  
+        session = sessionFactory.openSession();
         mustSessionBeFlushed = true;
         mustSessionBeClosed = true;
       }
@@ -164,7 +163,7 @@ public class DbPersistenceService implements PersistenceService {
         // resolve session or return
         Session session = this.session;
         if (session != null || resolveSession && (session = getSession()) != null) {
-                  
+
           /*
            * If the session is using aggressive connection release (as in a CMT environment),
            * the application is responsible for closing the returned connection. Otherwise, the
@@ -174,7 +173,17 @@ public class DbPersistenceService implements PersistenceService {
           ConnectionReleaseMode releaseMode = sessionFactory.getSettings()
             .getConnectionReleaseMode();
           mustConnectionBeClosed = releaseMode == ConnectionReleaseMode.AFTER_STATEMENT;
-          connection = ((SessionImplementor) session).connection();
+
+//          try {
+//            connection = sessionFactory.
+//                      getSessionFactoryOptions().getServiceRegistry().
+//                      getService(ConnectionProvider.class).getConnection();
+//          } catch ( SQLException e ) {
+//            throw new JbpmPersistenceException("connection failed", e);
+//          }
+
+            SessionImplementor sessionImplementor = (SessionImplementor) session;
+            connection = sessionImplementor.connection();
         }
       }
     }
@@ -182,7 +191,7 @@ public class DbPersistenceService implements PersistenceService {
   }
 
   public boolean isTransactionActive() {
-    return transaction != null && transaction.isActive();
+    return transaction != null && transaction.getStatus() == TransactionStatus.ACTIVE;
   }
 
   protected boolean isTransactionManagedExternally() {
@@ -274,7 +283,7 @@ public class DbPersistenceService implements PersistenceService {
     if (mustSessionBeClosed) {
       if (session != null) {
         try {
-          session.disconnect();
+          session.close();
         }
         catch (RuntimeException e) {
           return e;
@@ -441,7 +450,7 @@ public class DbPersistenceService implements PersistenceService {
 
   /**
    * Injects an external Hibernate session without affecting transaction management.
-   * 
+   *
    * @deprecated call {@link #setSession(Session, boolean) setSession(session, true)} instead
    */
   public void setSessionWithoutDisablingTx(Session session) {

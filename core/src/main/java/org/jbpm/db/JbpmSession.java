@@ -34,23 +34,23 @@ import org.jbpm.JbpmException;
 
 /**
  * represents the connection to the jbpm database.
- * 
+ *
  * You can obtain a JbpmSession with
  * <pre>
  * JbpmSession jbpmSession = jbpmSessionFactory.openJbpmSession();
  * </pre>
- * or  
+ * or
  * <pre>
  * Connection jdbcConnection = ...;
  * JbpmSession jbpmSession = jbpmSessionFactory.openJbpmSession(jdbcConnection);
- * </pre>  
+ * </pre>
  * The actual database operations are defined in the module sessions :
  * <ul>
  *   <li>{@link org.jbpm.db.GraphSession}</li>
  *   <li>{@link org.jbpm.db.TaskMgmtSession}</li>
  *   <li>{@link org.jbpm.db.LoggingSession}</li>
  *   <li>{@link org.jbpm.db.ContextSession}</li>
- * </ul>  
+ * </ul>
  * The easiest way to obtain the operations is like this :
  * <ul>
  *   <li><pre>jbpmSession.getGraphSession().someGraphDbMethod(...)</pre></li>
@@ -58,23 +58,23 @@ import org.jbpm.JbpmException;
  *   <li><pre>jbpmSession.getLoggingSession().someLoggingDbMethod(...)</pre></li>
  *   <li><pre>jbpmSession.getContextSession().someContextDbMethod(...)</pre></li>
  * </ul>
- * 
+ *
  * @deprecated use {@link org.jbpm.JbpmContext} and {@link org.jbpm.JbpmConfiguration} instead.
  */
 public class JbpmSession {
-  
+
   static ThreadLocal currentJbpmSessionStack = new ThreadLocal();
-  
+
   JbpmSessionFactory jbpmSessionFactory = null;
   Session session = null;
   Transaction transaction = null;
-  
+
   GraphSession graphSession = null;
   ContextSession contextSession = null;
   TaskMgmtSession taskMgmtSession = null;
   LoggingSession loggingSession = null;
   JobSession jobSession = null;
-  
+
   public JbpmSession( JbpmSessionFactory jbpmSessionFactory, Session session ) {
     this.jbpmSessionFactory = jbpmSessionFactory;
     this.session = session;
@@ -82,10 +82,10 @@ public class JbpmSession {
     this.contextSession = new ContextSession(this);
     this.taskMgmtSession = new TaskMgmtSession(this);
     this.loggingSession = new LoggingSession(this);
-    
+
     pushCurrentSession();
   }
-  
+
   public JbpmSession(Session session) {
     this.session = session;
     this.graphSession = new GraphSession(this);
@@ -156,7 +156,7 @@ public class JbpmSession {
       transaction = null;
     }
   }
-  
+
   public void commitTransactionAndClose() {
     commitTransaction();
     close();
@@ -165,7 +165,7 @@ public class JbpmSession {
     rollbackTransaction();
     close();
   }
-  
+
   public GraphSession getGraphSession() {
     return graphSession;
   }
@@ -187,7 +187,7 @@ public class JbpmSession {
       if ( (session!=null)
            && (session.isOpen())
          ) {
-        session.disconnect();
+        session.close();
       }
     } catch (Exception e) {
       log.error(e);
@@ -202,7 +202,7 @@ public class JbpmSession {
    * handles an exception that is thrown by hibernate.
    */
   void handleException() {
-    // if hibernate throws an exception,  
+    // if hibernate throws an exception,
     if (transaction!=null) {
       try {
         // the transaction should be rolled back
@@ -223,7 +223,7 @@ public class JbpmSession {
     }
     stack.addFirst(this);
   }
-  
+
   /**
    * @deprecated use {@link org.jbpm.JbpmConfiguration#getCurrentJbpmContext()} instead.
    */
@@ -231,7 +231,7 @@ public class JbpmSession {
     JbpmSession jbpmSession = null;
     LinkedList stack = (LinkedList) currentJbpmSessionStack.get();
     if ( (stack!=null)
-         && (! stack.isEmpty()) 
+         && (! stack.isEmpty())
        ) {
       jbpmSession = (JbpmSession) stack.getFirst();
     }

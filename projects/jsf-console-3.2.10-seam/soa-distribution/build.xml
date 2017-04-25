@@ -1,0 +1,30 @@
+<project name="SOA jbpm console builder">
+
+	<target name="build">
+		<delete file="${module_base_dir}/target/work/console-war/WEB-INF/web.xml" />
+		<copy todir="${module_base_dir}/target/work/console-war/" overwrite="true">
+      <fileset dir="${module_base_dir}/resource/jbpm-console/" includes="**/*" />
+    </copy>
+		<delete file="${module_base_dir}/target/work/gpd-war/WEB-INF/web.xml" />
+    <copy todir="${module_base_dir}/target/work/gpd-war/WEB-INF" file="${module_base_dir}/resource/gpd-console/web.xml" />
+	</target>
+
+	<target name="assemble">
+    <copy preservelastmodified="true" todir="${module_base_dir}/target/dist/jbpm-console.war">
+      <fileset dir="${module_base_dir}/target/work/console-war" includes="**/*" />
+    </copy>
+
+    <copy preservelastmodified="true" todir="${module_base_dir}/target/dist/gpd-deployer.war">
+      <fileset dir="${module_base_dir}/target/work/gpd-war" includes="**/*" />
+    </copy>
+
+    <war destfile="${module_base_dir}/target/${module_build_finalName}.war" webxml="${module_base_dir}/target/dist/jbpm-console.war/WEB-INF/web.xml">
+      <fileset dir="${module_base_dir}/target/dist/jbpm-console.war" includes="**/*" />
+    </war>
+
+    <zip destfile="${module_base_dir}/target/${module_build_finalName}.zip" > 
+      <zipfileset dir="${module_base_dir}/target/dist" prefix="jbpm-console" includes="**/*" />
+    </zip>
+
+	</target>
+</project>

@@ -42,38 +42,47 @@ public class ConverterEnumType implements UserType, Serializable {
   private static final long serialVersionUID = 1L;
   private static final int[] SQLTYPES = { Types.CHAR };
 
+  @Override
   public boolean equals(Object o1, Object o2) {
     return o1 == o2;
   }
 
+  @Override
   public int hashCode(Object o) throws HibernateException {
     return o.hashCode();
   }
 
+  @Override
   public Object deepCopy(Object o) throws HibernateException {
     return o;
   }
 
+  @Override
   public boolean isMutable() {
     return false;
   }
 
+  @Override
   public Serializable disassemble(Object o) throws HibernateException {
     return (Serializable) o;
   }
 
+  @Override
   public Object assemble(Serializable s, Object o) throws HibernateException {
     return s;
   }
 
+  @Override
   public Object replace(Object original, Object target, Object owner) {
     return target;
   }
 
+  @Override
   public int[] sqlTypes() {
     return SQLTYPES;
   }
 
+  @Override
   public Class returnedClass() {
     return Converter.class;
   }
@@ -81,6 +90,10 @@ public class ConverterEnumType implements UserType, Serializable {
   public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
       throws HibernateException, SQLException {
     String converterDatabaseId = resultSet.getString(names[0]);
+    if (converterDatabaseId != null) {
+        converterDatabaseId = converterDatabaseId.trim();
+    }
+
     return Converters.getConverterByDatabaseId(converterDatabaseId);
   }
 
@@ -90,17 +103,19 @@ public class ConverterEnumType implements UserType, Serializable {
     preparedStatement.setString(index, converterDatabaseId);
   }
 
-	public Object nullSafeGet(ResultSet rs, String[] names,
-			SessionImplementor session, Object owner) throws HibernateException,
-			SQLException {
-	
-		return nullSafeGet(rs, names, owner);
-	}
+    @Override
+    public Object nullSafeGet(ResultSet rs, String[] names,
+            SessionImplementor session, Object owner) throws HibernateException,
+            SQLException {
 
-	public void nullSafeSet(PreparedStatement st, Object value, int index,
-			SessionImplementor session) throws HibernateException, SQLException {
-	
-		nullSafeSet(st, value, index);
-		
-	}
+        return nullSafeGet(rs, names, owner);
+    }
+
+    @Override
+    public void nullSafeSet(PreparedStatement st, Object value, int index,
+            SessionImplementor session) throws HibernateException, SQLException {
+
+        nullSafeSet(st, value, index);
+
+    }
 }

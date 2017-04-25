@@ -27,9 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.hibernate.cfg.Configuration;
-
 import org.jbpm.JbpmConfiguration;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.util.ClassLoaderUtil;
 
 /**
@@ -37,31 +36,31 @@ import org.jbpm.util.ClassLoaderUtil;
  */
 public class AntHelper {
 
-  private static final Map configurations = new HashMap();
-  private static final Map jbpmConfigurations = new HashMap();
+  private static final Map<Object, JbpmHibernateConfiguration> configurations = new HashMap<>();
+  private static final Map<String, JbpmConfiguration> jbpmConfigurations = new HashMap<>();
 
   private AntHelper() {
     // prevent instantiation
   }
 
-  public static Configuration getConfiguration(String hibernateCfg, String hibernateProperties) {
+  public static JbpmHibernateConfiguration getConfiguration(String hibernateCfg, String hibernateProperties) {
     Object key = getKey(hibernateCfg, hibernateProperties);
-    Configuration configuration = (Configuration) configurations.get(key);
-    if (configuration == null) {
-      configuration = new Configuration();
-      configuration.configure(hibernateCfg);
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = configurations.get(key);
+    if (jbpmHibernateConfiguration == null) {
+      jbpmHibernateConfiguration = new JbpmHibernateConfiguration();
+      jbpmHibernateConfiguration.getConfigurationProxy().configure(hibernateCfg);
 
       if (hibernateProperties != null) {
         Properties properties = ClassLoaderUtil.getProperties(hibernateProperties);
-        configuration.addProperties(properties);
+        jbpmHibernateConfiguration.getConfigurationProxy().addProperties(properties);
       }
-      configurations.put(key, configuration);
+      configurations.put(key, jbpmHibernateConfiguration);
     }
-    return configuration;
+    return jbpmHibernateConfiguration;
   }
 
   public static JbpmConfiguration getJbpmConfiguration(String jbpmCfg) {
-    JbpmConfiguration jbpmConfiguration = (JbpmConfiguration) jbpmConfigurations.get(jbpmCfg);
+    JbpmConfiguration jbpmConfiguration = jbpmConfigurations.get(jbpmCfg);
     if (jbpmConfiguration == null) {
       if (jbpmCfg == null) {
         jbpmConfiguration = JbpmConfiguration.getInstance();
@@ -74,8 +73,8 @@ public class AntHelper {
     return jbpmConfiguration;
   }
 
-  static Object getKey(String cfg, String properties) {
-    List key = new ArrayList();
+  static List<String> getKey(String cfg, String properties) {
+    List<String> key = new ArrayList<>();
     key.add(cfg);
     key.add(properties);
     return key;

@@ -11,14 +11,14 @@
   <query name="GraphSession.AllProcessNames">
     <![CDATA[
      select distinct pd.name
-     from org.jbpm.graph.def.ProcessDefinition pd   
+     from org.jbpm.graph.def.ProcessDefinition pd
     ]]>
   </query>
 
   <query name="GraphSession.NumberOfDeployedProcesses">
     <![CDATA[
      select count (distinct pd.name)
-     from org.jbpm.graph.def.ProcessDefinition pd 
+     from org.jbpm.graph.def.ProcessDefinition pd
     ]]>
   </query>
 
@@ -26,7 +26,7 @@
     <![CDATA[
      select count (pi.id)
      from org.jbpm.graph.exe.ProcessInstance pi
-     where pi.end is null 
+     where pi.end is null
     ]]>
   </query>
 
@@ -35,7 +35,7 @@
      select pd
      from org.jbpm.graph.def.ProcessDefinition pd
      where pd.name = :name
-     order by pd.version desc    
+     order by pd.version desc
     ]]>
   </query>
 
@@ -78,7 +78,7 @@
         select pd.name, max(pd.version)
         from org.jbpm.graph.def.ProcessDefinition pd
         group by pd.name
-      ) 
+      )
      -->
   </query>
 
@@ -201,7 +201,7 @@
 
   <query name="GraphSession.calculateAverageTimeByNode">
     <![CDATA[
-      select 
+      select
         nl.node.id,
         nl.node.name,
         count(nl.leave),
@@ -363,7 +363,7 @@
       from org.jbpm.job.Job job
       where job.processInstance = :processInstance
         and job.lockOwner is null
-        and job.class in (org.jbpm.job.ExecuteNodeJob, org.jbpm.job.Timer)
+        and type(job) in (org.jbpm.job.ExecuteNodeJob, org.jbpm.job.Timer)
     ]]>
   </query>
 
@@ -372,7 +372,7 @@
       delete from org.jbpm.job.Job job
       where job.processInstance = :processInstance
         and job.lockOwner is null
-        and job.class in (org.jbpm.job.ExecuteNodeJob, org.jbpm.job.Timer)
+        and type(job) in (org.jbpm.job.ExecuteNodeJob, org.jbpm.job.Timer)
     ]]>
   </query>
 
@@ -480,7 +480,7 @@
     <![CDATA[
       select ti
       from org.jbpm.taskmgmt.exe.TaskInstance ti
-      where ti.token.processInstance = :instance 
+      where ti.token.processInstance = :instance
       and ti.end is null
     ]]>
   </query>

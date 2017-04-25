@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.jbpm.jbpm3</groupId>
     <artifactId>jbpm</artifactId>
-    <version>3.2.10.SP3_seam2</version>
+    <version>3.2.10-1-SP3_seam2_hibernate5-SNAPSHOT</version>
   </parent>
 
   <!-- Dependencies -->
@@ -42,6 +42,11 @@
       <artifactId>jta</artifactId>
       <scope>provided</scope>
     </dependency>
+<!-- 	<dependency> -->
+<!--       <groupId>org.jboss.spec.javax.transaction</groupId> -->
+<!--       <artifactId>jboss-transaction-api_1.2_spec</artifactId> -->
+<!--       <scope>provided</scope> -->
+<!-- 	</dependency> -->
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
@@ -75,21 +80,19 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>net.sf.retrotranslator</groupId>
-    	<artifactId>retrotranslator-runtime</artifactId>
-    	<scope>test</scope>
+        <groupId>net.sf.retrotranslator</groupId>
+        <artifactId>retrotranslator-runtime</artifactId>
+        <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>org.subethamail</groupId>
-    	<artifactId>subethasmtp-smtp</artifactId>
-    	<classifier>java14</classifier>
-    	<scope>test</scope>
+        <groupId>org.subethamail</groupId>
+        <artifactId>subethasmtp-smtp</artifactId>
+        <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>org.subethamail</groupId>
-    	<artifactId>subethasmtp-wiser</artifactId>
-    	<classifier>java14</classifier>
-    	<scope>test</scope>
+        <groupId>org.subethamail</groupId>
+        <artifactId>subethasmtp-wiser</artifactId>
+        <scope>test</scope>
     </dependency>
   </dependencies>
 

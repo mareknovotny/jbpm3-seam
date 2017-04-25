@@ -21,13 +21,12 @@
  */
 package org.jbpm.context.exe;
 
-import org.hibernate.cfg.Configuration;
-
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
 import org.jbpm.context.def.ContextDefinition;
 import org.jbpm.db.AbstractDbTestCase;
 import org.jbpm.db.JbpmSchema;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.persistence.db.DbPersistenceServiceFactory;
@@ -44,10 +43,9 @@ public class StringIdVariableDbTest extends AbstractDbTestCase {
       try {
         DbPersistenceServiceFactory persistenceServiceFactory =
           (DbPersistenceServiceFactory) jbpmContext.getServiceFactory(Services.SERVICENAME_PERSISTENCE);
-        Configuration configuration = persistenceServiceFactory.getConfiguration();
-        configuration.addClass(CustomStringClass.class);
+        JbpmHibernateConfiguration jbpmHibernateConfiguration = persistenceServiceFactory.getJbpmHibernateConfiguration();
 
-        JbpmSchema jbpmSchema = new JbpmSchema(configuration);
+        JbpmSchema jbpmSchema = new JbpmSchema(jbpmHibernateConfiguration);
         jbpmSchema.createTable("JBPM_TEST_CUSTOMSTRINGID");
       }
       finally {

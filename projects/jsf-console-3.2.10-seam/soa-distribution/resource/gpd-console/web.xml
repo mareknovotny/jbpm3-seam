@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+  <servlet>
+    <description>Server counterpart for the Graphical Process Designer
+      deployment feature.</description>
+    <servlet-name>GPD Deployer Servlet</servlet-name>
+    <servlet-class>org.jbpm.web.ProcessUploadServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>GPD Deployer Servlet</servlet-name>
+    <url-pattern>/upload/*</url-pattern>
+  </servlet-mapping>
+
+  <security-role>
+    <description>This role list should be changed to include all the relevant
+      roles for your environment.</description>
+    <role-name>admin</role-name>
+  </security-role>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Secure Area</web-resource-name>
+      <description>If you are deploying to JBoss AS, be sure to specify the
+        security domain in jboss-web.xml.</description>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <description>Optionally customize the role name to require a login before
+        access is allowed to the application.</description>
+      <role-name>JBossAdmin</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>jBPM GPD Deployer</realm-name>
+  </login-config>
+
+ <security-role>
+    <role-name>JBossAdmin</role-name>
+ </security-role>
+</web-app>

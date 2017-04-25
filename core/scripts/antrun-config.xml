@@ -93,5 +93,20 @@
              token="Timer.hbm.xml" value="Timer.calendar.hbm.xml" />
     <comment-out file="${project.test.output.dir}/org/jbpm/jbpm2958/hibernate.cfg.xml"
                  section="Automatic schema creation" />
+
+    <copy file="${project.output.dir}/hibernate.cfg.xml"
+                todir="${project.test.output.dir}/org/jbpm/context/exe" />
+    <replace file="${project.test.output.dir}/org/jbpm/context/exe/hibernate.cfg.xml">
+      <replacetoken><![CDATA[<mapping resource="org/jbpm/taskmgmt/log/SwimlaneAssignLog.hbm.xml"/>]]></replacetoken>
+      <replacevalue><![CDATA[
+          <mapping resource="org/jbpm/taskmgmt/log/SwimlaneAssignLog.hbm.xml"/>
+          <mapping resource="org/jbpm/context/exe/CustomLongClass.hbm.xml"/>
+          <mapping resource="org/jbpm/context/exe/CustomStringClass.hbm.xml"/>
+          ]]></replacevalue>
+    </replace>
+    <comment-out file="${project.test.output.dir}/org/jbpm/context/exe/hibernate.cfg.xml"
+                 section="Automatic schema creation" />
+
+
   </target>
 </project>

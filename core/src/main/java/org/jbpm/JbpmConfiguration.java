@@ -64,51 +64,51 @@ import org.jbpm.util.ClassLoaderUtil;
  * </p>
  * <ul>
  * <li>from a resource (by default <code>jbpm.cfg.xml</code> is used):
- * 
+ *
  * <pre>
  * JbpmConfiguration jbpmConfiguration = JbpmConfiguration.getInstance();
  * </pre>
- * 
+ *
  * or
- * 
+ *
  * <pre>
  * String myXmlResource = &quot;...&quot;;
  * JbpmConfiguration jbpmConfiguration = JbpmConfiguration.getInstance(myXmlResource);
  * </pre>
- * 
+ *
  * </li>
  * <li>from an XML string:
- * 
+ *
  * <pre>
  * JbpmConfiguration jbpmConfiguration = JbpmConfiguration.parseXmlString(
  *   &quot;&lt;jbpm-configuration&gt;&quot; +
  *   ...
  *   &quot;&lt;/jbpm-configuration&gt;&quot;);
  * </pre>
- * 
+ *
  * </li>
  * <li>By specifying a custom implementation of an object factory. This can be used to specify a
  * JbpmConfiguration in other bean-style notations such as used by JBoss Microcontainer or
  * Spring.
- * 
+ *
  * <pre>
  * ObjectFactory of = new &lt;i&gt;MyCustomObjectFactory&lt;/i&gt;();
  * JbpmConfiguration.Configs.setDefaultObjectFactory(of);
  * JbpmConfiguration jbpmConfiguration = JbpmConfiguration.getInstance();
  * </pre>
- * 
+ *
  * </li>
  * </ul>
  * <p>
  * JbpmConfigurations can be configured using a spring-like XML notation (in relax ng compact
  * notation):
  * </p>
- * 
+ *
  * <pre>
  * datatypes xs = &quot;http://www.w3.org/2001/XMLSchema-datatypes&quot;
- * 
+ *
  * start = element beans { element object* }
- * 
+ *
  * object = {
  *   jbpm-context |
  *   bean |
@@ -126,39 +126,39 @@ import org.jbpm.util.ClassLoaderUtil;
  *   false |
  *   null
  * }
- * 
+ *
  * jbpm-context = element jbpm-context {
  *   ( attribute name {xsd:string},
  *     service*,
- *     save-operations? 
+ *     save-operations?
  *   )
  * }
- * 
+ *
  * service = element service {
  *   ( attribute name {xsd:string},
  *     ( attribute factory {xsd:string} ) |
  *     ( factory )
  *   )
  * }
- * 
+ *
  * factory = element factory {
  *   ( bean |
  *     ref
  *   )
  * }
- * 
+ *
  * save-operations = element save-operations {
  *   ( save-operation* )
  * }
- * 
+ *
  * save-operation = element save-operation {
  *   ( ( attribute class {xsd:string} ) |
  *     ( bean |
  *       ref
- *     ) 
+ *     )
  *   )
  * }
- * 
+ *
  * bean = element bean {
  *   ( attribute ref-name {xsd:string} ) |
  *   ( attribute name {xsd:string}?,
@@ -169,57 +169,57 @@ import org.jbpm.util.ClassLoaderUtil;
  *     property*
  *   )
  * }
- * 
+ *
  * ref = element ref {
  *   ( attribute bean (xsd:string) )
  * }
- * 
+ *
  * constructor = element constructor {
  *   attribute class {xsd:string}?,
- *   ( attribute factory {xsd:string}, 
+ *   ( attribute factory {xsd:string},
  *     attribute method {xsd:string}
  *   )?,
  *   parameter*
  * }
- * 
+ *
  * parameter = element parameter {
  *   attribute class {xsd:string},
  *   object
  * }
- * 
+ *
  * field = element field {
  *   attribute name {xsd:string},
  *   object
  * }
- * 
+ *
  * property = element property {
  *   ( attribute name {xsd:string} |
  *     attribute setter {xsd:string}
  *   ),
  *   object
  * }
- * 
+ *
  * map = element map {
  *   entry*
  * }
- * 
- * entry = element entry { 
- *   key, 
- *   value 
+ *
+ * entry = element entry {
+ *   key,
+ *   value
  * }
- * 
+ *
  * key = element key {
  *   object
  * }
- * 
+ *
  * value = element value {
  *   object
  * }
- * 
+ *
  * list = element list {
  *   object*
  * }
- * 
+ *
  * string = element string {xsd:string}
  * int    = element integer {xsd:integer}
  * long   = element long {xsd:long}
@@ -231,7 +231,7 @@ import org.jbpm.util.ClassLoaderUtil;
  * false  = element false {}
  * null   = element null {}
  * </pre>
- * 
+ *
  * </p>
  */
 public class JbpmConfiguration implements Serializable {
@@ -614,30 +614,8 @@ public class JbpmConfiguration implements Serializable {
   }
 
   private static void remove(ThreadLocal threadLocal) {
-    try {
-      // ThreadLocal.remove does not exist in JDK 1.4.2
-      // invoke via reflection if available
-      Method removeMethod = ThreadLocal.class.getMethod("remove", null);
-      try {
-        removeMethod.invoke(threadLocal, null);
-      }
-      catch (IllegalAccessException e) {
-        // method should be public, otherwise Class.getMethod would not return it
-        throw new JbpmException(JbpmConfiguration.class + " has no access to " + removeMethod);
-      }
-      catch (InvocationTargetException e) {
-        // if remove method threw an exception, rethrow to client
-        Throwable cause = e.getCause();
-        if (cause instanceof RuntimeException) throw (RuntimeException) cause;
-        if (cause instanceof Error) throw (Error) cause;
-        throw new JbpmException(removeMethod + " threw exception", cause);
-      }
-    }
-    catch (NoSuchMethodException e) {
-      // method unavailable; just set thread local to null
-      // this will still leak the ThreadLocal itself but not the value
-      threadLocal.set(null);
-    }
+
+    threadLocal.remove();
   }
 
   void popJbpmContext(JbpmContext jbpmContext) {

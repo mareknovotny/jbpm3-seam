@@ -24,7 +24,6 @@ package org.jbpm.db.hibernate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,7 +31,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.jbpm.util.ClassLoaderUtil;
 
 public class HibernateHelper {
@@ -41,11 +39,13 @@ public class HibernateHelper {
     // prevent instantiation
   }
 
+  private static Map<Configuration, JbpmHibernateConfiguration> jbpmHibernateConfigurations = new HashMap<>();
+
   /**
    * maps SessionFactory's to Configurations.<br>
    * by default, configuration lookup will be enabled
    */
-  private static Map configurations = new HashMap();
+  private static Map<SessionFactory, Configuration> configurations = new HashMap<>();
 
   public static void clearConfigurationsCache() {
     configurations.clear();
@@ -66,7 +66,11 @@ public class HibernateHelper {
 
   public static SessionFactory createSessionFactory(String cfgXmlResource,
     String propertiesResource, boolean isConfigLookupEnabled) {
-    Configuration configuration = createConfiguration(cfgXmlResource, propertiesResource);
+
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = createConfiguration(cfgXmlResource, propertiesResource);
+    Configuration configuration = jbpmHibernateConfiguration.getConfigurationProxy();
+    jbpmHibernateConfigurations.put( configuration, jbpmHibernateConfiguration );
+
     return createSessionFactory(configuration, isConfigLookupEnabled);
   }
 
@@ -79,9 +83,13 @@ public class HibernateHelper {
     return sessionFactory;
   }
 
-  public static Configuration createConfiguration(String cfgXmlResource,
+  public static JbpmHibernateConfiguration createConfiguration(String cfgXmlResource,
     String propertiesResource) {
-    Configuration configuration = new Configuration();
+
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = new JbpmHibernateConfiguration();
+
+    Configuration configuration = jbpmHibernateConfiguration.getConfigurationProxy();
+    jbpmHibernateConfigurations.put(configuration, jbpmHibernateConfiguration);
 
     // if a special hibernate configuration xml file is specified,
     if (cfgXmlResource != null) {
@@ -105,15 +113,15 @@ public class HibernateHelper {
       }
     }
 
-    return configuration;
+    return jbpmHibernateConfiguration;
   }
 
   public static Configuration getConfiguration(SessionFactory sessionFactory) {
     return (Configuration) configurations.get(sessionFactory);
   }
 
-  public static SchemaExport createSchemaExport(SessionFactory sessionFactory) {
-    return new SchemaExport(getConfiguration(sessionFactory));
+  public static JbpmHibernateConfiguration getHibernateConfiguration(Configuration configuration) {
+      return jbpmHibernateConfigurations.get( configuration );
   }
 
   public static boolean createSchemaExportScript(SessionFactory sessionFactory) {
@@ -122,19 +130,7 @@ public class HibernateHelper {
   }
 
   public static void clearHibernateCache(SessionFactory sessionFactory) {
-    sessionFactory.evictQueries();
-
-    Map classMetadata = sessionFactory.getAllClassMetadata();
-    for (Iterator iter = classMetadata.keySet().iterator(); iter.hasNext();) {
-      String entityName = (String) iter.next();
-      sessionFactory.evictEntity(entityName);
-    }
-
-    Map collectionMetadata = sessionFactory.getAllCollectionMetadata();
-    for (Iterator iter = collectionMetadata.keySet().iterator(); iter.hasNext();) {
-      String collectionName = (String) iter.next();
-      sessionFactory.evictCollection(collectionName);
-    }
+    sessionFactory.getCache().evictAllRegions();
   }
 
   private static Properties loadPropertiesFromResource(String resource) {

@@ -33,7 +33,7 @@ import org.jbpm.svc.Services;
 
 /**
  * Verifies the join node can be persisted correctly.
- * 
+ *
  * @author Alejandro Guizar
  */
 public class JoinDbTest extends AbstractDbTestCase {
@@ -46,7 +46,7 @@ public class JoinDbTest extends AbstractDbTestCase {
       try {
         DbPersistenceServiceFactory persistenceServiceFactory = (DbPersistenceServiceFactory)
           jbpmContext.getServiceFactory(Services.SERVICENAME_PERSISTENCE);
-        JbpmSchema jbpmSchema = new JbpmSchema(persistenceServiceFactory.getConfiguration());
+        JbpmSchema jbpmSchema = new JbpmSchema(persistenceServiceFactory.getJbpmHibernateConfiguration());
         jbpmSchema.updateTable("JBPM_NODE");
       }
       finally {
@@ -65,7 +65,7 @@ public class JoinDbTest extends AbstractDbTestCase {
     ProcessDefinition processDefinition = ProcessDefinition.parseXmlString("<process-definition name='lock mode'>"
       + "  <join name='read' lock='READ' />"
       + "  <join name='nowait' lock='UPGRADE_NOWAIT' />"
-      + "  <join name='upgrade' lock='pessimistic' />"
+      + "  <join name='upgrade' lock='UPGRADE' />"
       + "</process-definition>");
     deployProcessDefinition(processDefinition);
 

@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.jbpm.jbpm3</groupId>
     <artifactId>jbpm</artifactId>
-    <version>3.2.10.SP3_seam2</version>
+    <version>3.2.10-1-SP3_seam2_hibernate5-SNAPSHOT</version>
   </parent>
 
   <!-- Dependencies -->
@@ -32,20 +32,16 @@
 
     <!-- Provided Dependencies -->
     <dependency>
-      <groupId>jboss</groupId>
-      <artifactId>jboss-j2ee</artifactId>
-      <scope>provided</scope>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>7.0</version>
+        <scope>provided</scope>
     </dependency>
 
     <!-- Test Dependencies -->
     <dependency>
       <groupId>org.apache.cactus</groupId>
       <artifactId>cactus.core.framework.uberjar.javaEE.14</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.client</groupId>
-      <artifactId>jbossall-client</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -116,6 +112,41 @@
         </executions>
       </plugin>
     </plugins>
+    <pluginManagement>
+    	<plugins>
+    		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+    		<plugin>
+    			<groupId>org.eclipse.m2e</groupId>
+    			<artifactId>lifecycle-mapping</artifactId>
+    			<version>1.0.0</version>
+    			<configuration>
+    				<lifecycleMappingMetadata>
+    					<pluginExecutions>
+    						<pluginExecution>
+    							<pluginExecutionFilter>
+    								<groupId>
+    									org.apache.maven.plugins
+    								</groupId>
+    								<artifactId>
+    									maven-assembly-plugin
+    								</artifactId>
+    								<versionRange>
+    									[2.2-beta-4,)
+    								</versionRange>
+    								<goals>
+    									<goal>single</goal>
+    								</goals>
+    							</pluginExecutionFilter>
+    							<action>
+    								<execute></execute>
+    							</action>
+    						</pluginExecution>
+    					</pluginExecutions>
+    				</lifecycleMappingMetadata>
+    			</configuration>
+    		</plugin>
+    	</plugins>
+    </pluginManagement>
   </build>
 
   <!-- Profiles -->
@@ -251,7 +282,7 @@
       </build>
     </profile>
 
-    <!-- 
+    <!--
       Name: mysql
       Desc: MySQL test exclusions
     -->

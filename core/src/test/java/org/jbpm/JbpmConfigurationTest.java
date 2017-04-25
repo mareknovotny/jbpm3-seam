@@ -38,6 +38,7 @@ public class JbpmConfigurationTest extends AbstractJbpmTestCase {
 
   protected void tearDown() throws Exception {
     JbpmConfiguration.setDefaultObjectFactory(null);
+    JbpmConfiguration.clearInstances();
     super.tearDown();
   }
 
@@ -127,13 +128,13 @@ public class JbpmConfigurationTest extends AbstractJbpmTestCase {
   }
 
   public void testDomainModelConfigsWithoutJbpmContext() {
-    // Without a current JbpmContext, the jbpm domain model objects that 
-    // need configuration information fetch it from the object factory of 
-    // the singleton instance.  The singleton instance object factory is 
-    // by default initialized with the jbpm.cfg.xml resource unless, a 
+    // Without a current JbpmContext, the jbpm domain model objects that
+    // need configuration information fetch it from the object factory of
+    // the singleton instance.  The singleton instance object factory is
+    // by default initialized with the jbpm.cfg.xml resource unless, a
     // custom default object factory is specified.
     //
-    // So to use jBPM without a JbpmContext, you can only use the resource with name 
+    // So to use jBPM without a JbpmContext, you can only use the resource with name
     // 'jbpm.cfg.xml' or the static method JbpmConfiguration.Configs.setDefaultObjectFactory
     // to specify the configuration information.
 

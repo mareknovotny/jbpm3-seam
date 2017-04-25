@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.jbpm.jbpm3</groupId>
     <artifactId>jbpm</artifactId>
-    <version>3.2.10.SP3_seam2</version>
+    <version>3.2.10-1-SP3_seam2_hibernate5-SNAPSHOT</version>
   </parent>
 
   <!-- Dependencies -->
@@ -41,6 +41,11 @@
       <artifactId>jta</artifactId>
       <scope>provided</scope>
     </dependency>
+<!-- 	<dependency> -->
+<!--       <groupId>org.jboss.spec.javax.transaction</groupId> -->
+<!--       <artifactId>jboss-transaction-api_1.2_spec</artifactId> -->
+<!--       <scope>provided</scope> -->
+<!-- 	</dependency> -->
 
     <!-- Test Dependencies -->
     <dependency>

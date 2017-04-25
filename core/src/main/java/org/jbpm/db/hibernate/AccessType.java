@@ -21,53 +21,129 @@
  */
 package org.jbpm.db.hibernate;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.io.Reader;
+import java.io.StringReader;
+import java.sql.Clob;
 
 import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.jdbc.CharacterStream;
+import org.hibernate.engine.jdbc.internal.CharacterStreamImpl;
+import org.hibernate.type.AbstractSingleColumnStandardBasicType;
 import org.hibernate.type.DiscriminatorType;
-import org.hibernate.type.ImmutableType;
+import org.hibernate.type.descriptor.WrapperOptions;
+import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
+import org.hibernate.type.descriptor.java.DataHelper;
+import org.hibernate.type.descriptor.sql.VarcharTypeDescriptor;
 import org.jbpm.context.def.Access;
 
-public class AccessType extends ImmutableType implements DiscriminatorType {
+public class AccessType extends AbstractSingleColumnStandardBasicType<Access>
+        implements DiscriminatorType<Access>
+{
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public Object get(ResultSet rs, String name) throws SQLException {
-    return new Access(rs.getString(name));
-  }
+    public static final AccessType INSTANCE = new AccessType();
 
-  public Class getReturnedClass() {
-    return Access.class;
-  }
+    public AccessType()
+    {
+        super( VarcharTypeDescriptor.INSTANCE, AccessTypeDescriptor.INSTANCE );
+    }
 
-  public void set(PreparedStatement st, Object value, int index) throws SQLException {
-    st.setString(index, ((Access) value).toString());
-  }
+    @Override
+    public String getName()
+    {
+        return "string";
+    }
 
-  public int sqlType() {
-    return Types.VARCHAR;
-  }
+    @Override
+    protected boolean registerUnderJavaType()
+    {
+        return true;
+    }
 
-  public String getName() {
-    return "access";
-  }
+    @Override
+    public String objectToSQLString( Access value, Dialect dialect ) throws Exception
+    {
+        return '\'' + value.toString() + '\'';
+    }
 
-  public String objectToSQLString(Object value, Dialect dialect) throws Exception {
-    return '\'' + value.toString() + '\'';
-  }
+    @Override
+    public Access stringToObject( String xml ) throws Exception
+    {
+        return new Access( xml );
+    }
 
-  public Object stringToObject(String xml) throws Exception {
-    return xml;
-  }
+    @Override
+    public String toString( Access value )
+    {
+        return value.toString();
+    }
 
-  public String toString(Object value) {
-    return value != null ? value.toString() : "null";
-  }
+    /**
+     * Descriptor for {@link Access} handling.
+     *
+     */
+    public static class AccessTypeDescriptor extends AbstractTypeDescriptor<Access> {
 
-  public Object fromStringValue(String xml) {
-    return xml;
-  }
+        private static final long serialVersionUID = 1L;
+
+        public static final AccessTypeDescriptor INSTANCE = new AccessTypeDescriptor();
+
+        public AccessTypeDescriptor() {
+            super( Access.class );
+        }
+
+        @Override
+        public String toString(Access access) {
+            return access.toString();
+        }
+
+        @Override
+        public Access fromString(String access) {
+            return new Access( access );
+        }
+
+        @Override
+        @SuppressWarnings({ "unchecked" })
+        public <X> X unwrap(Access value, Class<X> type, WrapperOptions options) {
+            if ( value == null ) {
+                return null;
+            }
+            if ( String.class.isAssignableFrom( type ) ) {
+                return (X) value.toString();
+            }
+            if ( Reader.class.isAssignableFrom( type ) ) {
+                return (X) new StringReader( value.toString() );
+            }
+            if ( CharacterStream.class.isAssignableFrom( type ) ) {
+                return (X) new CharacterStreamImpl( value.toString() );
+            }
+            if ( Clob.class.isAssignableFrom( type ) ) {
+                return (X) options.getLobCreator().createClob( value.toString() );
+            }
+            if ( DataHelper.isNClob( type ) ) {
+                return (X) options.getLobCreator().createNClob( value.toString() );
+            }
+
+            throw unknownUnwrap( type );
+        }
+
+        @Override
+        public <X> Access wrap(X value, WrapperOptions options) {
+            if ( value == null ) {
+                return null;
+            }
+            if ( String.class.isInstance( value ) ) {
+                return new Access( (String) value);
+            }
+            if ( Reader.class.isInstance( value ) ) {
+                return new Access( DataHelper.extractString( (Reader) value ) );
+            }
+            if ( Clob.class.isInstance( value ) ) {
+                return new Access( DataHelper.extractString( (Clob) value ) );
+            }
+
+            throw unknownWrap( value.getClass() );
+        }
+    }
 }

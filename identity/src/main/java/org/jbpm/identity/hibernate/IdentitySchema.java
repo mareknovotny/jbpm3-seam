@@ -24,100 +24,84 @@ package org.jbpm.identity.hibernate;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import org.hibernate.Session;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.Mapping;
 import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.mapping.ForeignKey;
+import org.hibernate.jdbc.Work;
 import org.hibernate.mapping.Table;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.jbpm.JbpmException;
+import org.jbpm.db.JbpmSchema;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.logging.db.JDBCExceptionReporter;
 
+@SuppressWarnings( "nls" )
 public class IdentitySchema {
 
   private static final String IDENTITY_TABLE_PATTERN = "JBPM_ID_%";
-  private static final String[] TABLE_TYPES = {
-    "TABLE"
-  };
+  private static final String[] TABLE_TYPES = { "TABLE" };
 
-  private final Configuration configuration;
-  
+  private final JbpmHibernateConfiguration jbpmHibernateConfiguration;
+  private String delimiter;
+  private final List<Exception> exceptions = new ArrayList<>();
+
+  private MetadataSources metadataSources;
+  private MetadataImplementor metadataImplementor;
+  private SessionFactory sessionFactory;
   private Session session;
+  private SessionImplementor sessionImplementor;
 
-  public IdentitySchema(Configuration configuration) {
-    this.configuration = configuration;
+  public IdentitySchema(JbpmHibernateConfiguration jbpmHibernateConfiguration) {
+      this.jbpmHibernateConfiguration = jbpmHibernateConfiguration;
+      this.delimiter = ";";
   }
 
-  private Dialect getDialect() {
-    return Dialect.getDialect(configuration.getProperties());
+  private synchronized void configure() {
+    if (sessionFactory == null) {
+        this.sessionFactory = jbpmHibernateConfiguration.buildSessionFactory();
+        this.metadataSources = jbpmHibernateConfiguration.getMetadataSources();
+        this.metadataImplementor = jbpmHibernateConfiguration.getMetadataImplementor();
+        this.session = sessionFactory.openSession();
+        this.sessionImplementor = (SessionImplementor)session;
+    }
+  }
+
+  Dialect getDialect() {
+    return Dialect.getDialect(jbpmHibernateConfiguration.getConfigurationProxy().getProperties());
   }
 
   private String getDefaultCatalog() {
-    return configuration.getProperty(Environment.DEFAULT_CATALOG);
+    return jbpmHibernateConfiguration.getConfigurationProxy().getProperty(Environment.DEFAULT_CATALOG);
   }
 
   private String getDefaultSchema() {
-    return configuration.getProperty(Environment.DEFAULT_SCHEMA);
+    return jbpmHibernateConfiguration.getConfigurationProxy().getProperty(Environment.DEFAULT_SCHEMA);
   }
 
-  // scripts lazy initializations /////////////////////////////////////////////
-
-  public String[] getCreateSql() {
-    return configuration.generateSchemaCreationScript(getDialect());
+  private boolean getShowSql() {
+    return "true".equalsIgnoreCase(jbpmHibernateConfiguration.getConfigurationProxy().getProperty(Environment.SHOW_SQL));
   }
 
-  public String[] getDropSql() {
-    return configuration.generateDropSchemaScript(getDialect());
+  public void setDelimiter(String delimiter) {
+    this.delimiter = delimiter;
   }
 
-  public String[] getCleanSql() {
-    List dropForeignKeysSql = new ArrayList();
-    List createForeignKeysSql = new ArrayList();
-
-    Dialect dialect = getDialect();
-    String defaultCatalog = getDefaultCatalog();
-    String defaultSchema = getDefaultSchema();
-    Mapping mapping = configuration.buildMapping();
-
-    // loop over all table mappings
-    for (Iterator tm = configuration.getTableMappings(); tm.hasNext();) {
-      Table table = (Table) tm.next();
-      if (!table.isPhysicalTable()) continue;
-
-      for (Iterator subIter = table.getForeignKeyIterator(); subIter.hasNext();) {
-        ForeignKey foreignKey = (ForeignKey) subIter.next();
-        if (foreignKey.isPhysicalConstraint()) {
-          // collect the drop key constraint
-          dropForeignKeysSql.add(foreignKey.sqlDropString(dialect, defaultCatalog, defaultSchema));
-          createForeignKeysSql.add(foreignKey.sqlCreateString(dialect, mapping, defaultCatalog, defaultSchema));
-        }
-      }
-    }
-
-    List deleteSql = dropForeignKeysSql;
-    for (Iterator iter = configuration.getTableMappings(); iter.hasNext();) {
-      Table table = (Table) iter.next();
-      deleteSql.add("delete from " + table.getName());
-    }
-
-    List cleanSqlList = dropForeignKeysSql;
-    cleanSqlList.addAll(createForeignKeysSql);
-
-    return (String[]) cleanSqlList.toArray(new String[cleanSqlList.size()]);
+  public List<Exception> getExceptions() {
+    return exceptions;
   }
 
   // runtime table detection //////////////////////////////////////////////////
@@ -126,62 +110,135 @@ public class IdentitySchema {
     return !getIdentityTables().isEmpty();
   }
 
-  public List getIdentityTables() {
-    // delete all the data in the jbpm tables
-    Connection connection = null;
-    try {
-      connection = createConnection();
+  public List<String> getIdentityTables() {
 
-      List identityTables = new ArrayList();
-      ResultSet resultSet = connection.getMetaData()
-        .getTables(null, null, IDENTITY_TABLE_PATTERN, TABLE_TYPES);
-      try {
-        while (resultSet.next()) {
-          String tableName = resultSet.getString("TABLE_NAME");
-          if (tableName != null && tableName.length() > 5
-            && IDENTITY_TABLE_PATTERN.equalsIgnoreCase(tableName.substring(0, 5))) {
-            identityTables.add(tableName);
+    configure();
+
+    final List<String> existingTables = new ArrayList<>();
+
+    session.doWork( new Work(){
+
+      @Override
+      public void execute( Connection connection ) {
+        try {
+
+          IdentitySchema.prepareConnection( connection );
+
+          DatabaseMetaData metaData = connection.getMetaData();
+
+          try ( ResultSet resultSet = metaData.getTables(
+              null, null, IDENTITY_TABLE_PATTERN, TABLE_TYPES) ) {
+
+            while (resultSet.next()) {
+              String tableName = resultSet.getString("TABLE_NAME");
+              if (tableName != null && tableName.length() > 5
+                  && IDENTITY_TABLE_PATTERN.equalsIgnoreCase(tableName.substring(0, 5))) {
+                  existingTables.add(tableName);
+              }
+            }
           }
+        } catch (SQLException e) {
+            throw new JbpmException("could not get identity tables", e);
         }
       }
-      finally {
-        resultSet.close();
-      }
-      return identityTables;
-    }
-    catch (SQLException e) {
-      throw new JbpmException("could not get identity tables");
-    }
-    finally {
-      closeConnection(connection);
-    }
+
+    });
+
+    return existingTables;
   }
 
   // script execution methods /////////////////////////////////////////////////
 
   public void dropSchema() {
-    execute(getDropSql());
+      dropSchema(true, null);
+  }
+
+  public void dropSchema(boolean exportToDb, String exportToFile) {
+
+    configure();
+
+    SchemaExport schemaExport = new SchemaExport(metadataImplementor);
+    schemaExport.setOutputFile(exportToFile);
+    schemaExport.setDelimiter(delimiter);
+    schemaExport.drop(true, exportToDb);
+
+    @SuppressWarnings( "unchecked" )
+    List<Exception> schemaExceptions = schemaExport.getExceptions();
+
+    if (schemaExceptions != null && schemaExceptions.size() > 0) {
+      for ( Exception e : schemaExceptions ) {
+          exceptions.add( e );
+          JDBCExceptionReporter.logExceptions(e, "failed to drop schema");
+      }
+    }
   }
 
   public void createSchema() {
-    execute(getCreateSql());
+      createSchema( true, null );
+  }
+
+  public void createSchema(boolean exportToDb, String exportToFile) {
+
+      configure();
+
+      SchemaExport schemaExport = new SchemaExport(metadataImplementor);
+      schemaExport.setOutputFile(exportToFile);
+      schemaExport.setDelimiter(delimiter);
+      schemaExport.create(true, exportToDb);
+
+      @SuppressWarnings( "unchecked" )
+      List<Exception> schemaExceptions = schemaExport.getExceptions();
+
+      if (schemaExceptions != null && schemaExceptions.size() > 0) {
+        for ( Exception e : schemaExceptions ) {
+            exceptions.add( e );
+            JDBCExceptionReporter.logExceptions(e, "failed to create schema");
+        }
+      }
   }
 
   public void cleanSchema() {
-    execute(getCleanSql());
+      cleanSchema( true, null );
+  }
+
+  public void cleanSchema(boolean exportToDb, String exportToFile) {
+
+    configure();
+
+    SchemaExport schemaExportForDrop = new SchemaExport(metadataImplementor);
+    schemaExportForDrop.setOutputFile(exportToFile);
+    schemaExportForDrop.setDelimiter(delimiter);
+    schemaExportForDrop.execute( true, exportToDb, false, false );
+
+    @SuppressWarnings( "unchecked" )
+    List<Exception> schemaExceptions = schemaExportForDrop.getExceptions();
+
+    if (schemaExceptions != null && schemaExceptions.size() > 0) {
+      for ( Exception e : schemaExceptions ) {
+        exceptions.add( e );
+        JDBCExceptionReporter.logExceptions(e, "failed to clean schema");
+      }
+    }
   }
 
   public void saveSqlScripts(String dir, String prefix) {
-    try {
-      new File(dir).mkdirs();
-      saveSqlScript(dir + "/" + prefix + ".drop.sql", getDropSql());
-      saveSqlScript(dir + "/" + prefix + ".create.sql", getCreateSql());
-      saveSqlScript(dir + "/" + prefix + ".clean.sql", getCleanSql());
-      new SchemaExport(configuration).setDelimiter(getSqlDelimiter()).setOutputFile(dir + "/"
-        + prefix + ".drop.create.sql").create(true, false);
+    File path = new File(dir);
+    if (!path.isDirectory()) {
+      throw new JbpmException(path + " is not a directory");
     }
-    catch (IOException e) {
-      throw new JbpmException("couldn't generate scripts", e);
+
+    dropSchema(true, new File(path, prefix + ".drop.sql").getAbsolutePath());
+    createSchema(true, new File(path, prefix + ".create.sql").getAbsolutePath());
+
+    for ( Exception e : exceptions ) {
+        JDBCExceptionReporter.logExceptions(e, "failed to generate scripts");
+    }
+  }
+
+  private static void prepareConnection( Connection connection ) throws SQLException {
+    if ( connection.getAutoCommit() == false ) {
+      connection.commit();
+      connection.setAutoCommit( true );
     }
   }
 
@@ -224,72 +281,52 @@ public class IdentitySchema {
     }
   }
 
-  // sql script execution /////////////////////////////////////////////////////
-
-  public void execute(String[] script) {
-    Connection connection = null;
-    try {
-      connection = createConnection();
-      Statement statement = connection.createStatement();
-      try {
-        boolean showSql = getShowSql();
-        for (int i = 0; i < script.length; i++) {
-          String sql = script[i];
-          if (showSql) System.out.println(sql);
-          statement.executeUpdate(sql);
-        }
-      }
-      finally {
-        statement.close();
-      }
-    }
-    catch (SQLException e) {
-      throw new JbpmException("failed to execute sql", e);
-    }
-    finally {
-      closeConnection(connection);
-    }
-  }
-
-  private boolean getShowSql() {
-    return "true".equalsIgnoreCase(configuration.getProperty(Environment.SHOW_SQL));
-  }
-
-	private void closeConnection(Connection connection) {
-		if (connection != null) {
-			JDBCExceptionReporter.logAndClearWarnings(connection);
-			try {
-				connection.close();
-			} catch (SQLException e) {
-				JDBCExceptionReporter.logExceptions(e);
-			}
-		}
-	}
-
-  private Connection createConnection() throws SQLException {
-	this.session = configuration.buildSessionFactory().openSession();
-	Connection connection = ((SessionImplementor) session).connection();
-
-	if (connection.getAutoCommit() == false) {
-      connection.commit();
-      connection.setAutoCommit(true);
-    }
-    return connection;
-  }
-
-  public Properties getProperties() {
-    return configuration.getProperties();
-  }
-
   // sql delimiter ////////////////////////////////////////////////////////////
 
   private static String sqlDelimiter;
 
   private synchronized String getSqlDelimiter() {
+
+    configure();
+
     if (sqlDelimiter == null) {
-      sqlDelimiter = getProperties().getProperty("jbpm.sql.delimiter", ";");
+      sqlDelimiter = jbpmHibernateConfiguration.getConfigurationProxy().getProperties().getProperty("jbpm.sql.delimiter", ";");
     }
     return sqlDelimiter;
   }
+
+  // getters and setters
+
+  public JbpmHibernateConfiguration getJbpmHibernateConfiguration() {
+      return jbpmHibernateConfiguration;
+    }
+
+
+    public String getDelimiter() {
+      return delimiter;
+    }
+
+
+    public MetadataSources getMetadataSources() {
+      configure();
+      return metadataSources;
+    }
+
+
+    public MetadataImplementor getMetadataImplementor() {
+      configure();
+      return metadataImplementor;
+    }
+
+
+    public SessionFactory getSessionFactory() {
+      configure();
+      return sessionFactory;
+    }
+
+    public SessionImplementor getSessionImplementor() {
+      configure();
+      return sessionImplementor;
+    }
 
 }

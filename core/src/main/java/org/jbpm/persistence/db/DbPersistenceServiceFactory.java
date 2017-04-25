@@ -26,13 +26,11 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
-
 import org.jbpm.JbpmConfiguration.Configs;
 import org.jbpm.db.JbpmSchema;
 import org.jbpm.db.hibernate.HibernateHelper;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.svc.Service;
 import org.jbpm.svc.ServiceFactory;
 import org.jbpm.util.JndiUtil;
@@ -41,7 +39,7 @@ public class DbPersistenceServiceFactory implements ServiceFactory {
 
   private static final long serialVersionUID = 1L;
 
-  private Configuration configuration;
+  private JbpmHibernateConfiguration jbpmHibernateConfiguration;
 
   String sessionFactoryJndiName;
   private SessionFactory sessionFactory;
@@ -54,16 +52,14 @@ public class DbPersistenceServiceFactory implements ServiceFactory {
 
   boolean mustSessionFactoryBeClosed;
 
-  /** @deprecated replaced by {@link #jbpmSchema} */
-  private SchemaExport schemaExport;
   private JbpmSchema jbpmSchema;
 
   public Service openService() {
     return new DbPersistenceService(this);
   }
 
-  public synchronized Configuration getConfiguration() {
-    if (configuration == null) {
+  public synchronized JbpmHibernateConfiguration getJbpmHibernateConfiguration() {
+    if (jbpmHibernateConfiguration == null) {
       String hibernateCfgXmlResource = null;
       if (Configs.hasObject("resource.hibernate.cfg.xml")) {
         hibernateCfgXmlResource = Configs.getString("resource.hibernate.cfg.xml");
@@ -72,24 +68,14 @@ public class DbPersistenceServiceFactory implements ServiceFactory {
       if (Configs.hasObject("resource.hibernate.properties")) {
         hibernatePropertiesResource = Configs.getString("resource.hibernate.properties");
       }
-      configuration = HibernateHelper.createConfiguration(hibernateCfgXmlResource, hibernatePropertiesResource);
+      jbpmHibernateConfiguration = HibernateHelper.createConfiguration(hibernateCfgXmlResource, hibernatePropertiesResource);
     }
-    return configuration;
-  }
-
-  /**
-   * @deprecated use {@link #getJbpmSchema()} instead
-   */
-  public synchronized SchemaExport getSchemaExport() {
-    if (schemaExport == null) {
-      schemaExport = new SchemaExport(getConfiguration());
-    }
-    return schemaExport;
+    return jbpmHibernateConfiguration;
   }
 
   public synchronized JbpmSchema getJbpmSchema() {
     if (jbpmSchema == null) {
-      jbpmSchema = new JbpmSchema(getConfiguration());
+      jbpmSchema = new JbpmSchema(getJbpmHibernateConfiguration());
     }
     return jbpmSchema;
   }
@@ -101,7 +87,7 @@ public class DbPersistenceServiceFactory implements ServiceFactory {
         mustSessionFactoryBeClosed = false;
       }
       else {
-        sessionFactory = getConfiguration().buildSessionFactory();
+        sessionFactory = getJbpmHibernateConfiguration().buildSessionFactory();
         mustSessionFactoryBeClosed = true;
       }
     }
@@ -132,7 +118,7 @@ public class DbPersistenceServiceFactory implements ServiceFactory {
 
   boolean getScript() {
     boolean script = false;
-    String showSql = getConfiguration().getProperty(Environment.SHOW_SQL);
+    String showSql = jbpmHibernateConfiguration.getConfigurationProxy().getProperty(Environment.SHOW_SQL);
     if ("true".equalsIgnoreCase(showSql)) {
       script = true;
     }
@@ -167,16 +153,12 @@ public class DbPersistenceServiceFactory implements ServiceFactory {
     this.sessionFactoryJndiName = sessionFactoryJndiName;
   }
 
-  public void setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
+  public void setJbpmHibernateConfiguration(JbpmHibernateConfiguration jbpmHibernateConfiguration) {
+    this.jbpmHibernateConfiguration = jbpmHibernateConfiguration;
   }
 
   public void setDataSource(DataSource dataSource) {
     this.dataSource = dataSource;
-  }
-
-  public void setSchemaExport(SchemaExport schemaExport) {
-    this.schemaExport = schemaExport;
   }
 
   public void setSessionFactory(SessionFactory sessionFactory) {

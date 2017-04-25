@@ -21,9 +21,7 @@
  */
 package org.jbpm.ant;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,9 +29,8 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.SQLExec.DelimiterType;
-import org.hibernate.cfg.Configuration;
-
 import org.jbpm.db.JbpmSchema;
+import org.jbpm.db.hibernate.JbpmHibernateConfiguration;
 import org.jbpm.util.IoUtil;
 
 public class JbpmSchemaTask extends Task {
@@ -41,7 +38,8 @@ public class JbpmSchemaTask extends Task {
   String config = "hibernate.cfg.xml";
   String properties;
   String action = "create";
-  String output;
+  String outputDir;
+  String outputPrefix;
   String delimiter = ";";
   String delimiterType = DelimiterType.NORMAL;
 
@@ -49,25 +47,17 @@ public class JbpmSchemaTask extends Task {
     // Create schema tool
     JbpmSchema jbpmSchema = getJbpmSchema();
 
-    // Generate script
-    String[] script;
     if ("create".equalsIgnoreCase(action)) {
-      script = jbpmSchema.getCreateSql();
+        jbpmSchema.createSchema(true, new File(outputDir, outputPrefix + ".create.sql").getAbsolutePath());
     }
     else if ("update".equalsIgnoreCase(action)) {
-      try {
-        script = jbpmSchema.getUpdateSql();
-      }
-      catch (RuntimeException e) {
-        e.printStackTrace();
-        throw e;
-      }
+        jbpmSchema.updateSchema(true, new File(outputDir, outputPrefix + ".update.sql").getAbsolutePath());
     }
     else if ("drop".equalsIgnoreCase(action)) {
-      script = jbpmSchema.getDropSql();
+      jbpmSchema.dropSchema(true, new File(outputDir, outputPrefix + ".drop.sql").getAbsolutePath());
     }
     else if ("clean".equalsIgnoreCase(action)) {
-      script = jbpmSchema.getCleanSql();
+        jbpmSchema.cleanSchema(true, new File(outputDir, outputPrefix + ".clean.sql").getAbsolutePath());
     }
     else {
       throw new BuildException("Unsupported action: " + action);
@@ -82,33 +72,15 @@ public class JbpmSchemaTask extends Task {
       }
     }
 
-    // Save script to output file
-    try {
-      saveScript(script, jbpmSchema);
-    }
-    catch (IOException e) {
-      log(e.toString(), Project.MSG_ERR);
-      throw new BuildException("Failed to write script to " + output);
-    }
   }
 
   private JbpmSchema getJbpmSchema() {
-    Configuration configuration = AntHelper.getConfiguration(config, properties);
+    JbpmHibernateConfiguration jbpmHibernateConfiguration = AntHelper.getConfiguration(config, properties);
 
-    JbpmSchema jbpmSchema = new JbpmSchema(configuration);
+    JbpmSchema jbpmSchema = new JbpmSchema(jbpmHibernateConfiguration);
     jbpmSchema.setDelimiter(DelimiterType.ROW.equals(delimiterType) ? IoUtil.lineSeparator
       + delimiter : delimiter);
     return jbpmSchema;
-  }
-
-  private void saveScript(String[] script, JbpmSchema jbpmSchema) throws IOException {
-    Writer writer = new FileWriter(output);
-    try {
-      jbpmSchema.writeSql(writer, script);
-    }
-    finally {
-      writer.close();
-    }
   }
 
   public void setAction(String action) {
@@ -131,7 +103,12 @@ public class JbpmSchemaTask extends Task {
     this.delimiterType = delimiterType.getValue();
   }
 
-  public void setOutput(String output) {
-    this.output = output;
+  public void setOutputDir(String outputDir) {
+    this.outputDir = outputDir;
   }
+
+  public void setOutputPrefix(String outputPrefix) {
+    this.outputPrefix = outputPrefix;
+  }
+
 }

@@ -1,0 +1,1 @@
+jsf-console-3.2.10-seam forked from http://anonsvn.jboss.org/repos/jbpm/projects/jsf-console/tags/jsf-console-3.2.10/
